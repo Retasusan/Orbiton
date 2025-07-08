@@ -1,0 +1,5 @@
+{
+  "custom": false,
+  "preset": "developer",
+  "plugins": ["weather", "weather", "weather", "weather"]
+}

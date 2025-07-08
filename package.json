@@ -1,0 +1,34 @@
+{
+  "name": "orbiton",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "vitest"
+  },
+  "description": "A beautiful TUI dashboard for SSH sessions",
+  "bin": {
+    "orbiton": "./index.js"
+  },
+  "author": "Retasusan(https://github.com/Retasusan)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Retasusan/orbiton.git"
+  },
+  "keywords": [
+    "tui",
+    "dashboard",
+    "ssh",
+    "ascii",
+    "terminal",
+    "monitoring"
+  ],
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}
