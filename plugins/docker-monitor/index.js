@@ -1,103 +1,128 @@
 import blessed from "blessed";
+import contrib from "blessed-contrib";
 import { exec } from "child_process";
 import util from "util";
 
 const execAsync = util.promisify(exec);
 
-function padRight(str, length) {
-  if (str.length > length) return str.slice(0, length - 3) + "...";
-  return str + " ".repeat(length - str.length);
-}
-
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
-  const box = grid.set(row, col, rowSpan, colSpan, blessed.box, {
-    label: "Docker Containers",
-    tags: true,
-    border: { type: "line" },
-    style: {
-      border: { fg: "cyan" },
-      fg: "white",
-      bg: "black",
-    },
-    scrollable: true,
-    alwaysScroll: true,
-    keys: true,
-    mouse: true,
-    vi: true,
-    padding: { left: 1, right: 1, top: 1, bottom: 1 },
-    scrollbar: {
-      ch: " ",
-      track: { bg: "grey" },
-      style: { bg: "cyan" },
-    },
-  });
+  // ドーナツグラフ用の枠
+  const donut = grid.set(
+    row,
+    col,
+    Math.floor(rowSpan / 2),
+    colSpan,
+    contrib.donut,
+    {
+      label: "Docker Containers Status",
+      radius: 12,
+      arcWidth: 4,
+      yPadding: 2,
+      data: [],
+    }
+  );
 
-  async function updateDockerContainers() {
+  // コンテナ詳細リスト用のスクロール可能なテキストボックス
+  const listBox = grid.set(
+    row + Math.floor(rowSpan / 2),
+    col,
+    rowSpan - Math.floor(rowSpan / 2),
+    colSpan,
+    blessed.box,
+    {
+      label: "Container Details",
+      tags: true,
+      border: { type: "line" },
+      style: {
+        border: { fg: "cyan" },
+        fg: "white",
+        bg: "black",
+      },
+      scrollable: true,
+      alwaysScroll: true,
+      scrollbar: {
+        ch: " ",
+        track: { bg: "grey" },
+        style: { bg: "cyan" },
+      },
+      padding: { left: 1, right: 1, top: 1, bottom: 1 },
+    }
+  );
+
+  async function updateDockerStatus() {
     try {
-      const formatStr =
-        "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}";
-
       const { stdout } = await execAsync(
-        `docker ps -a --format "${formatStr}"`
+        'docker ps -a --format "{{.Names}}\t{{.Status}}"'
       );
+      const lines = stdout
+        .trim()
+        .split("\n")
+        .filter((line) => line.length > 0);
 
-      const lines = stdout.trim().split("\n");
-
-      if (lines.length === 0 || (lines.length === 1 && lines[0] === "")) {
-        box.setContent("{yellow-fg}No containers found{/yellow-fg}");
-        box.screen.render();
-        return;
-      }
-
-      const colWidths = {
-        name: 20,
-        image: 30,
-        uptime: 15,
-        status: 25,
-      };
-
-      let content =
-        `{bold}` +
-        padRight("NAME", colWidths.name) +
-        padRight("IMAGE", colWidths.image) +
-        padRight("UPTIME", colWidths.uptime) +
-        padRight("STATUS", colWidths.status) +
-        `{\/bold}\n\n`;
+      // 状態ごとにカウント
+      const statusCounts = { Up: 0, Exited: 0, Other: 0 };
+      const containerDetails = [];
 
       for (const line of lines) {
-        const [id, name, image, runningFor, status] = line.split("\t");
+        const [name, ...statusParts] = line.split("\t");
+        const status = statusParts.join(" ");
 
-        // 色分け（Upは緑、Exitedは赤、それ以外黄色）
+        let state = "Other";
+        if (/Up/i.test(status)) state = "Up";
+        else if (/Exited/i.test(status)) state = "Exited";
+
+        statusCounts[state]++;
+
+        // 状態に応じて色を決定
         let color = "yellow";
-        if (/Exited/i.test(status)) color = "red";
-        else if (/Up/i.test(status)) color = "green";
+        if (state === "Up") color = "green";
+        else if (state === "Exited") color = "red";
 
-        content +=
-          `{${color}-fg}` +
-          padRight(name, colWidths.name) +
-          padRight(image, colWidths.image) +
-          padRight(runningFor, colWidths.uptime) +
-          padRight(status, colWidths.status) +
-          `{/${color}-fg}\n`;
+        containerDetails.push(`{${color}-fg}${name}{/} : ${status}`);
       }
 
-      box.setContent(content);
-      box.screen.render();
-    } catch (err) {
-      box.setContent(
-        `{red-fg}Failed to get docker containers: ${err.message}{/red-fg}`
+      const total =
+        statusCounts.Up + statusCounts.Exited + statusCounts.Other || 1;
+
+      // ドーナツグラフ用データ
+      donut.setData([
+        {
+          label: "Up",
+          percent: Math.round((statusCounts.Up / total) * 100),
+          color: "green",
+        },
+        {
+          label: "Exited",
+          percent: Math.round((statusCounts.Exited / total) * 100),
+          color: "red",
+        },
+        {
+          label: "Other",
+          percent: Math.round((statusCounts.Other / total) * 100),
+          color: "yellow",
+        },
+      ]);
+
+      // 詳細リスト表示
+      listBox.setContent(
+        containerDetails.join("\n") ||
+          "{yellow-fg}No containers found{/yellow-fg}"
       );
-      box.screen.render();
+
+      // 描画更新
+      donut.screen.render();
+    } catch (err) {
+      listBox.setContent(
+        `{red-fg}Failed to fetch docker containers: ${err.message}{/red-fg}`
+      );
+      donut.screen.render();
     }
   }
 
-  updateDockerContainers();
-  const timer = setInterval(
-    updateDockerContainers,
-    options.updateInterval || 5000
-  );
+  updateDockerStatus();
+  const timer = setInterval(updateDockerStatus, options.updateInterval || 5000);
 
-  box.on("destroy", () => clearInterval(timer));
+  donut.on("destroy", () => clearInterval(timer));
 
-  return box;
+  return donut; // 戻り値はdonutでもlistBoxでも構わないですが、donutにしました
 }
