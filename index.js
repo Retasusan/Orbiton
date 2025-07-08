@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+
+//  License
+// This project is licensed under the MIT License, see the LICENSE.txt file for details.
+
 import { renderDashboard } from "./ui/index.js";
 
 async function main() {
