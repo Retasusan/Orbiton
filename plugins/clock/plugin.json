@@ -1,0 +1,19 @@
+{
+  "name": "clock",
+  "version": "0.1.0",
+  "description": "Clock widget plugin showing current time",
+  "author": "Retasusan",
+  "license": "MIT",
+  "optionsSchema": {
+    "type": "object",
+    "properties": {
+      "format": {
+        "type": "string",
+        "enum": ["12h", "24h"],
+        "description": "Time format, 12-hour or 24-hour",
+        "default": "24h"
+      }
+    },
+    "required": []
+  }
+}

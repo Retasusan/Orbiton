@@ -1,0 +1,14 @@
+{
+  "name": "docker-monitor",
+  "version": "1.0.0",
+  "description": "Docker container status monitoring plugin",
+  "author": "Retasusan",
+  "main": "dockerWidget.js",
+  "license": "MIT",
+  "dependencies": {
+    "blessed": "^0.1.81"
+  },
+  "config": {
+    "updateInterval": 5000
+  }
+}

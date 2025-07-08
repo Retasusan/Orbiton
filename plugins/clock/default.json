@@ -1,0 +1,20 @@
+{
+  "font": "block",
+  "colors": ["green", "cyan"],
+  "updateInterval": 1000,
+  "timeZone": "Asia/Tokyo",
+  "format": "24h",
+  "show": {
+    "weekday": true,
+    "date": true,
+    "time12h": false,
+    "timezone": true,
+    "unixEpoch": true,
+    "dayOfYear": true,
+    "iso8601": true,
+    "weekNumber": true,
+    "timezoneOffset": true,
+    "ampm": false,
+    "isoWeekday": true
+  }
+}

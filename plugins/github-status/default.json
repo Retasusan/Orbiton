@@ -1,0 +1,7 @@
+{
+  "label": "GitHub Status",
+  "updateInterval": 300000,
+  "showDescription": true,
+  "showIndicator": true,
+  "credentials": null
+}

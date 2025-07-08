@@ -1,10 +1,10 @@
 import { resolvePluginPath } from "../config/resolvePlugins.js";
 
-export async function loadPlugins(pluginNames) {
+export async function loadPlugins(pluginConfigs) {
   const plugins = [];
   const failedPlugins = [];
 
-  for (const name of pluginNames) {
+  for (const { name } of pluginConfigs) {
     try {
       const pluginPath = resolvePluginPath(name);
       const mod = await import(`file://${pluginPath}`);

@@ -26,7 +26,10 @@
   ],
   "dependencies": {
     "blessed": "^0.1.81",
-    "blessed-contrib": "^4.11.0"
+    "blessed-contrib": "^4.11.0",
+    "cfonts": "^3.3.0",
+    "node-fetch": "^3.3.2",
+    "ps-list": "^8.1.1"
   },
   "devDependencies": {
     "vitest": "^3.2.4"

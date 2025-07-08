@@ -7,6 +7,7 @@ import path from "path";
 export async function renderDashboard() {
   const { screen, grid } = createLayout();
   const config = loadUserConfig();
+
   const { plugins, failedPlugins } = await loadPlugins(config.plugins || []);
 
   if (failedPlugins.length > 0) {
@@ -55,9 +56,21 @@ export async function renderDashboard() {
   }
 
   for (let i = 0; i < plugins.length; i++) {
-    const { mod } = plugins[i];
-    const pos = layout[i] || [0, 0, 6, 6];
-    mod.createWidget(grid, pos);
+    const { mod, name } = plugins[i];
+    const configPlugin = config.plugins[i];
+    let options = {};
+
+    if (configPlugin.options === "default") {
+      const defaultJsonPath = path.resolve("plugins", name, "default.json");
+      if (fs.existsSync(defaultJsonPath)) {
+        options = JSON.parse(fs.readFileSync(defaultJsonPath, "utf-8"));
+      }
+    } else if (typeof configPlugin.options === "object") {
+      options = configPlugin.options;
+    }
+
+    const pos = configPlugin.position || [0, 0, 6, 6];
+    mod.createWidget(grid, pos, options);
   }
 
   screen.render();

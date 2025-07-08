@@ -1,0 +1,5 @@
+{
+  "docker-monitor": {
+    "updateInterval": 5000
+  }
+}

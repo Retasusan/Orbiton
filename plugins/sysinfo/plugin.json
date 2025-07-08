@@ -1,0 +1,12 @@
+{
+  "name": "sysinfo",
+  "version": "0.1.0",
+  "description": "System info widget showing CPU load and memory usage",
+  "author": "Retasusan",
+  "license": "MIT",
+  "optionsSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

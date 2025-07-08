@@ -1,0 +1,33 @@
+{
+  "name": "github-status",
+  "version": "0.1.0",
+  "description": "Displays GitHub system status",
+  "author": "Retasusan",
+  "license": "MIT",
+  "optionsSchema": {
+    "type": "object",
+    "properties": {
+      "updateInterval": {
+        "type": "number",
+        "description": "Update interval in milliseconds",
+        "default": 300000
+      },
+      "showDescription": {
+        "type": "boolean",
+        "description": "Show status description",
+        "default": true
+      },
+      "showIndicator": {
+        "type": "boolean",
+        "description": "Show colored indicator",
+        "default": true
+      },
+      "label": {
+        "type": "string",
+        "description": "Label of the widget",
+        "default": "GitHub Status"
+      }
+    },
+    "required": []
+  }
+}
