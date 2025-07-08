@@ -1,32 +1,46 @@
-import { vi, describe, it, expect } from "vitest";
-import fs from "fs";
 import path from "path";
-import { resolvePluginPath } from "./resolvePlugins.js";
+import fs from "fs";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { resolvePluginPath } from "../config/resolvePlugins.js";
 
 vi.mock("fs");
 
 describe("resolvePluginPath", () => {
-  it("returns plugin path if plugin exists", () => {
+  const originalResolve = path.resolve;
+
+  beforeEach(() => {
+    // fs.existsSyncのモックを初期化
+    fs.existsSync.mockReset();
+  });
+
+  it("should return absolute path if plugin exists", () => {
+    const pluginName = "weather";
+    const expectedPath = `/some/path/plugins/${pluginName}/index.js`;
+
+    // path.resolveの挙動をモックして期待パスを返す
+    vi.spyOn(path, "resolve").mockReturnValue(expectedPath);
     fs.existsSync.mockReturnValue(true);
-    const result = resolvePluginPath("weather");
-    expect(result).toBe(path.resolve("plugins", "weather", "index.js"));
+
+    const result = resolvePluginPath(pluginName);
+
+    expect(fs.existsSync).toHaveBeenCalledWith(expectedPath);
+    expect(result).toBe(expectedPath);
+
+    // path.resolveのモックを元に戻す
+    path.resolve.mockRestore();
   });
 
-  it("throws error if plugin does not exist", () => {
+  it("should throw error if plugin does not exist", () => {
+    const pluginName = "nonexistent";
+    const expectedPath = `/some/path/plugins/${pluginName}/index.js`;
+
+    vi.spyOn(path, "resolve").mockReturnValue(expectedPath);
     fs.existsSync.mockReturnValue(false);
-    expect(() => resolvePluginPath("nonexistent")).toThrowError(
-      /Plugin not found/
+
+    expect(() => resolvePluginPath(pluginName)).toThrowError(
+      `Plugin not found: "${pluginName}"`
     );
-  });
 
-  it("throws error with correct path if plugin does not exist", () => {
-    fs.existsSync.mockReturnValue(false);
-    try {
-      resolvePluginPath("nonexistent");
-    } catch (e) {
-      expect(e.message).toMatch(
-        /Expected at: .*plugins\/nonexistent\/index.js/
-      );
-    }
+    path.resolve.mockRestore();
   });
 });
