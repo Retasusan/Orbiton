@@ -1,5 +1,6 @@
 {
   "custom": false,
+  "theme": "default",
   "plugins": [
     {
       "name": "clock",

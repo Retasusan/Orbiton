@@ -4,7 +4,7 @@ import os from "os";
 import psList from "ps-list";
 import { exec } from "child_process";
 import util from "util";
-import { info } from "console";
+import { getTheme } from "../../ui/theme.js"; // Assuming you have a theme module
 
 const execAsync = util.promisify(exec);
 
@@ -12,6 +12,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const { updateInterval = 5000, topProcessesCount = 5 } = options;
   const donutHeight = Math.floor(rowSpan * 0.5);
   const infoHeight = rowSpan - donutHeight;
+  const theme = getTheme();
 
   // ドーナツチャートは3つを横並びに (幅は4列ずつ、計12列)
   const donutCpu = grid.set(
@@ -71,15 +72,15 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       tags: true,
       border: { type: "line" },
       style: {
-        border: { fg: "yellow" },
-        fg: "white",
+        border: { fg: theme.fg || "cyan" },
+        fg: theme.fg || "white",
       },
       scrollable: true,
       alwaysScroll: true,
       scrollbar: {
         ch: " ",
         track: { bg: "grey" },
-        style: { bg: "yellow" },
+        style: { bg: theme.bg || "yellow" },
       },
       padding: { left: 2, right: 2, top: 1, bottom: 1 },
     }
@@ -130,17 +131,27 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     const diskUsagePercent = await getDiskUsage();
 
     donutCpu.setData([
-      { label: "CPU", percent: Math.round(cpuUsagePercent), color: "green" },
+      {
+        label: "CPU",
+        percent: Math.round(cpuUsagePercent),
+        color: theme.donut[0].fg,
+      },
     ]);
     donutMem.setData([
-      { label: "Memory", percent: Math.round(memUsagePercent), color: "cyan" },
+      {
+        label: "Memory",
+        percent: Math.round(memUsagePercent),
+        color: theme.donut[1].fg,
+      },
     ]);
     if (diskUsagePercent !== null) {
       donutDisk.setData([
-        { label: "Disk", percent: diskUsagePercent, color: "magenta" },
+        { label: "Disk", percent: diskUsagePercent, color: theme.donut[2].fg },
       ]);
     } else {
-      donutDisk.setData([{ label: "Disk", percent: 0, color: "grey" }]);
+      donutDisk.setData([
+        { label: "Disk", percent: 0, color: theme.donut[3].fg },
+      ]);
     }
 
     // プロセスリスト取得 (top N CPU使用率順)

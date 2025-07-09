@@ -1,6 +1,7 @@
 import blessed from "blessed";
 import contrib from "blessed-contrib";
 import axios from "axios";
+import { getTheme } from "../../ui/theme.js";
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const {
@@ -9,13 +10,14 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     credentials = {},
   } = options;
   const apiKey = credentials.token;
+  const theme = getTheme();
 
   const weatherBox = grid.set(row, col, rowSpan, colSpan, blessed.box, {
     label: `Weather Forecast (${location})`,
     border: { type: "line" },
     style: {
-      border: { fg: "green" },
-      fg: "white",
+      border: { fg: theme.border },
+      fg: theme.fg,
     },
   });
 
@@ -28,9 +30,9 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     width: "90%",
     height: "75%",
     style: {
-      line: "yellow",
-      text: "white",
-      baseline: "black",
+      line: theme.line,
+      text: theme.text,
+      baseline: theme.baseline,
     },
   });
   weatherBox.append(forecastLine);
@@ -44,7 +46,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     height: "20%",
     tags: true,
     style: {
-      fg: "white",
+      fg: theme.fg,
     },
   });
 
