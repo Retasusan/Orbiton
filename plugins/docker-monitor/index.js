@@ -47,20 +47,18 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   async function updateDockerStatus() {
     try {
       const { stdout } = await execAsync(
-        'docker ps -a --format "{{.Names}}\t{{.Status}}"'
+        'docker ps -a --format "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}\t{{.CreatedAt}}"'
       );
       const lines = stdout
         .trim()
         .split("\n")
         .filter((line) => line.length > 0);
 
-      // 状態ごとにカウント
       const statusCounts = { Up: 0, Exited: 0, Other: 0 };
       const containerDetails = [];
 
       for (const line of lines) {
-        const [name, ...statusParts] = line.split("\t");
-        const status = statusParts.join(" ");
+        const [id, name, image, status, ports, createdAt] = line.split("\t");
 
         let state = "Other";
         if (/Up/i.test(status)) state = "Up";
@@ -68,12 +66,17 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
 
         statusCounts[state]++;
 
-        // 状態に応じて色を決定
         let color = "yellow";
         if (state === "Up") color = "green";
         else if (state === "Exited") color = "red";
 
-        containerDetails.push(`{${color}-fg}${name}{/} : ${status}`);
+        containerDetails.push(
+          `{${color}-fg}${name}{/} (${id.slice(0, 12)})\n` +
+            `  Image   : ${image}\n` +
+            `  Status  : ${status}\n` +
+            `  Ports   : ${ports || "-"}\n` +
+            `  Created : ${createdAt}\n`
+        );
       }
 
       const total =
