@@ -1,5 +1,4 @@
 import blessed from "blessed";
-import contrib from "blessed-contrib";
 import cfonts from "cfonts";
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
@@ -14,7 +13,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const use12h = format === "12h";
 
   const clockHeight = Math.floor(rowSpan * 0.5); // 上半分に時計
-  const contentHeight = rowSpan - clockHeight; // 下半分にその他
+  const contentHeight = rowSpan - clockHeight + 0.25; // 下半分
 
   // 時計（上半分）
   const clockBox = grid.set(row, col, clockHeight, colSpan, blessed.box, {
@@ -22,71 +21,49 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     tags: true,
     border: { type: "line" },
     style: { border: { fg: "white" }, fg: "white" },
-    padding: { top: 1, left: 2, right: 2, bottom: 1 },
+    padding: { top: 1, left: 2, right: 2, bottom: 2 },
     align: "center",
   });
 
   // 下半分を左右2分割
   const leftColSpan = Math.floor(colSpan * 0.5);
-
-  // 左：ドーナツ
-  const donut = grid.set(
-    row + clockHeight,
-    col,
-    contentHeight + 0.25, // 0.25は下のborderのため
-    leftColSpan,
-    contrib.donut,
-    {
-      label: "Minute Progress",
-      radius: 10,
-      arcWidth: 4,
-      yPadding: 2,
-      data: [],
-    }
-  );
-
-  // 右：進捗バー + タイムゾーン
   const rightCol = col + leftColSpan;
   const rightColSpan = colSpan - leftColSpan;
-  const barsBoxHeight = Math.floor(contentHeight * 0.7);
+
+  // 左下：Progress Bars
   const barsBox = grid.set(
     row + clockHeight,
-    rightCol,
-    barsBoxHeight + 0.25, // 0.25は下のborderのため
-    rightColSpan,
+    col,
+    contentHeight,
+    leftColSpan,
     blessed.box,
     {
-      label: "Progress Bars",
+      label: "Progress",
       tags: true,
       border: { type: "line" },
       style: { fg: "white" },
       padding: { top: 1, left: 2, right: 2, bottom: 1 },
-      scrollable: false,
     }
   );
 
-  const timezoneBox = grid.set(
-    row + clockHeight + barsBoxHeight,
+  // 右下：Info Box（タイムゾーンなど）
+  const infoBox = grid.set(
+    row + clockHeight,
     rightCol,
-    contentHeight - barsBoxHeight + 0.25, // 0.25は下のborderのため
+    contentHeight,
     rightColSpan,
     blessed.box,
     {
-      label: "Timezone",
+      label: "Info",
       tags: true,
+      border: { type: "line" },
       style: { fg: "white" },
-      content: `{center}{bold}${timeZone}{/bold}{/center}`,
-      align: "center",
+      padding: { top: 1, left: 2, right: 2, bottom: 1 },
+      scrollable: true,
     }
   );
 
-  const barWidth = Math.max(27, rightColSpan * 4);
-
-  function getTimeColor(second) {
-    if (second >= 0 && second < 20) return "blue";
-    if (second >= 20 && second < 40) return "green";
-    return "magenta";
-  }
+  const barWidth = Math.max(27, leftColSpan * 4);
 
   function createAsciiProgressBar(progress, width) {
     const filledLength = Math.floor(progress * width);
@@ -121,14 +98,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
 
     clockBox.setContent(rendered.string);
 
-    // ドーナツの進捗（1分で一周）
-    const minutePercent = Math.round(((sec + ms / 1000) / 60) * 100);
-    donut.setData([
-      { label: "min", percent: minutePercent, color: getTimeColor(hour) },
-    ]);
-    donut.setLabel(`Minute Progress (${min}m)`);
-
-    // 進捗バー計算
+    // Progress Bars
     const secProgress = (sec + ms / 1000) / 60;
     const minProgress = (min + sec / 60) / 60;
 
@@ -140,15 +110,44 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
         `{bold}{red-fg}Minute: {/}{/bold}${createAsciiProgressBar(
           minProgress,
           barWidth
-        )}\n\n`
+        )}`
     );
+
+    // Info Box
+    const dateStr = now.toLocaleDateString("en-US", { timeZone });
+    function formatUptime(seconds) {
+      const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+      const s = String(Math.floor(seconds % 60)).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    const nowUtc = new Date(now.toISOString()); // UTC基準
+    const nowIso = now.toISOString();
+    const nowUnix = Math.floor(now.getTime() / 1000);
+    const offsetMin = now.getTimezoneOffset();
+    const offsetHour = -offsetMin / 60;
+    const offsetStr = (offsetHour >= 0 ? "+" : "") + offsetHour;
+
+    const infoContent = [
+      `{center}{bold}TimeZone:{/bold} ${timeZone} (UTC${offsetStr}){/center}`,
+      `{center}{bold}Local Time:{/bold} ${timeStr}{/center}`,
+      `{center}{bold}UTC:{/bold} ${
+        nowUtc.toTimeString().split(" ")[0]
+      }{/center}`,
+      `{center}{bold}ISO:{/bold} ${nowIso}{/center}`,
+      `{center}{bold}Unix:{/bold} ${nowUnix}{/center}`,
+      `{center}{bold}Date:{/bold} ${dateStr}{/center}`,
+      `{center}{bold}Uptime:{/bold} ${formatUptime(process.uptime())}{/center}`,
+    ].join("\n");
+
+    infoBox.setContent(infoContent);
 
     clockBox.screen.render();
   }
 
   updateTime();
   const timer = setInterval(updateTime, updateInterval);
-
   clockBox.on("destroy", () => clearInterval(timer));
 
   return clockBox;
