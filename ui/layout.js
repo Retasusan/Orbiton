@@ -9,29 +9,32 @@ export function createLayout() {
   const originalSet = grid.set.bind(grid);
 
   grid.set = (...args) => {
-    const box = originalSet(...args);
+    const widget = originalSet(...args);
 
-    box.scrollable = true;
-    box.alwaysScroll = true;
+    // blessed.boxまたはその派生か判定（typeプロパティがboxかどうか）
+    if (widget.type === "box") {
+      widget.scrollable = true;
+      widget.alwaysScroll = true;
 
-    box.key(["up", "down", "pageup", "pagedown"], (ch, key) => {
-      if (key.name === "up") box.scroll(-1);
-      else if (key.name === "down") box.scroll(1);
-      else if (key.name === "pageup") box.scroll(-box.height + 1);
-      else if (key.name === "pagedown") box.scroll(box.height - 1);
-      box.screen.render();
-    });
+      widget.key(["up", "down", "pageup", "pagedown"], (ch, key) => {
+        if (key.name === "up") widget.scroll(-1);
+        else if (key.name === "down") widget.scroll(1);
+        else if (key.name === "pageup") widget.scroll(-widget.height + 1);
+        else if (key.name === "pagedown") widget.scroll(widget.height - 1);
+        widget.screen.render();
+      });
 
-    box.on("wheelup", () => {
-      box.scroll(-3);
-      box.screen.render();
-    });
-    box.on("wheeldown", () => {
-      box.scroll(3);
-      box.screen.render();
-    });
+      widget.on("wheelup", () => {
+        widget.scroll(-3);
+        widget.screen.render();
+      });
+      widget.on("wheeldown", () => {
+        widget.scroll(3);
+        widget.screen.render();
+      });
+    }
 
-    return box;
+    return widget;
   };
 
   screen.key(["q", "C-c", "escape"], () => process.exit(0));

@@ -6,27 +6,22 @@ import util from "util";
 const execAsync = util.promisify(exec);
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
-  // ドーナツグラフ用の枠
-  const donut = grid.set(
-    row,
-    col,
-    Math.floor(rowSpan / 2),
-    colSpan,
-    contrib.donut,
-    {
-      label: "Docker Containers Status",
-      radius: 12,
-      arcWidth: 4,
-      yPadding: 2,
-      data: [],
-    }
-  );
+  const donutHeight = Math.floor(rowSpan * 0.55);
+  // なぜかlistHeightを0.25足さないとContainer Detailsのbottom borderの位置がズレる
+  const listHeight = rowSpan - donutHeight + 0.25;
+  const donut = grid.set(row, col, donutHeight, colSpan, contrib.donut, {
+    label: "Docker Containers Status",
+    radius: 12,
+    arcWidth: 4,
+    yPadding: 2,
+    data: [],
+  });
 
   // コンテナ詳細リスト用のスクロール可能なテキストボックス
   const listBox = grid.set(
-    row + Math.floor(rowSpan / 2),
+    row + donutHeight,
     col,
-    rowSpan - Math.floor(rowSpan / 2),
+    listHeight,
     colSpan,
     blessed.box,
     {
@@ -124,5 +119,5 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
 
   donut.on("destroy", () => clearInterval(timer));
 
-  return donut; // 戻り値はdonutでもlistBoxでも構わないですが、donutにしました
+  return donut;
 }

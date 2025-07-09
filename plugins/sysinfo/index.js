@@ -1,25 +1,28 @@
 import blessed from "blessed";
-import contrib from "blessed-contrib";
+import contrib, { donut } from "blessed-contrib";
 import os from "os";
 import psList from "ps-list";
 import { exec } from "child_process";
 import util from "util";
+import { info } from "console";
 
 const execAsync = util.promisify(exec);
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const { updateInterval = 5000, topProcessesCount = 5 } = options;
+  const donutHeight = Math.floor(rowSpan * 0.5);
+  const infoHeight = rowSpan - donutHeight;
 
   // ドーナツチャートは3つを横並びに (幅は4列ずつ、計12列)
   const donutCpu = grid.set(
     row,
     col,
-    Math.floor(rowSpan * 0.4),
+    donutHeight,
     Math.floor(colSpan / 3),
     contrib.donut,
     {
       label: "CPU Usage",
-      radius: 8,
+      radius: 10,
       arcWidth: 4,
       yPadding: 2,
       data: [],
@@ -29,12 +32,12 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const donutMem = grid.set(
     row,
     col + Math.floor(colSpan / 3),
-    Math.floor(rowSpan * 0.4),
+    donutHeight,
     Math.floor(colSpan / 3),
     contrib.donut,
     {
       label: "Memory Usage",
-      radius: 8,
+      radius: 10,
       arcWidth: 4,
       yPadding: 2,
       data: [],
@@ -44,12 +47,12 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const donutDisk = grid.set(
     row,
     col + 2 * Math.floor(colSpan / 3),
-    Math.floor(rowSpan * 0.4),
+    donutHeight,
     Math.floor(colSpan / 3),
     contrib.donut,
     {
       label: "Disk Usage",
-      radius: 8,
+      radius: 10,
       arcWidth: 4,
       yPadding: 2,
       data: [],
@@ -58,9 +61,9 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
 
   // 下にスクロール可能な詳細情報ボックス (残りの60%縦幅)
   const infoBox = grid.set(
-    row + Math.floor(rowSpan * 0.4),
+    row + donutHeight,
     col,
-    rowSpan - Math.floor(rowSpan * 0.4),
+    infoHeight,
     colSpan,
     blessed.box,
     {
