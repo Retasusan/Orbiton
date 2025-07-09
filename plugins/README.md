@@ -27,7 +27,7 @@ Each plugin must export a `createWidget` function. This function receives:
 - `position`: an array like `[row, col, rowSpan, colSpan]`
 - `options`: optional custom configuration
 
-### Example:
+### Example
 
 ```js
 import blessed from "blessed";
@@ -112,7 +112,7 @@ Start Orbiton:
 
 Make long content scrollable with:
 
-# Resources
+## Resources
 
-blessed
-blessed-contrib
+- blessed
+- blessed-contrib
