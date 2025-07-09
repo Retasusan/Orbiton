@@ -34,8 +34,7 @@ async function main() {
   try {
     await renderDashboard();
   } catch (err) {
-    console.error(`🚫 Failed to start dashboard:\n${err.message || err}`);
-    process.exit(1);
+    throw new Error(`🚫 Failed to start dashboard:\n${err.message || err}`);
   }
 }
 
