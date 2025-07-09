@@ -99,8 +99,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
         },
       ]);
 
-      // 現在の天気詳細テキスト作成
-      const weatherDesc = weather[0]?.description || "";
+      const weatherDesc = weather[0]?.main || "";
       const currentTime = new Date(dt * 1000).toLocaleString();
       currentWeatherBox.setContent(
         `{bold}${location} - ${currentTime}{/bold}\n` +
