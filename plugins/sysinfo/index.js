@@ -73,7 +73,6 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       style: {
         border: { fg: "yellow" },
         fg: "white",
-        bg: "black",
       },
       scrollable: true,
       alwaysScroll: true,

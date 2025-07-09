@@ -21,7 +21,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     label: "Clock",
     tags: true,
     border: { type: "line" },
-    style: { border: { fg: "white" }, fg: "white", bg: "black" },
+    style: { border: { fg: "white" }, fg: "white" },
     padding: { top: 1, left: 2, right: 2, bottom: 1 },
     align: "center",
   });
@@ -59,7 +59,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       label: "Progress Bars",
       tags: true,
       border: { type: "line" },
-      style: { fg: "white", bg: "black" },
+      style: { fg: "white" },
       padding: { top: 1, left: 2, right: 2, bottom: 1 },
       scrollable: false,
     }
@@ -74,7 +74,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     {
       label: "Timezone",
       tags: true,
-      style: { fg: "white", bg: "black" },
+      style: { fg: "white" },
       content: `{center}{bold}${timeZone}{/bold}{/center}`,
       align: "center",
     }

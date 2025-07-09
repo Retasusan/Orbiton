@@ -8,7 +8,7 @@ const execAsync = util.promisify(exec);
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const donutHeight = Math.floor(rowSpan * 0.55);
   // なぜかlistHeightを0.25足さないとContainer Detailsのbottom borderの位置がズレる
-  const listHeight = rowSpan - donutHeight + 0.25;
+  const listHeight = rowSpan - donutHeight;
   const donut = grid.set(row, col, donutHeight, colSpan, contrib.donut, {
     label: "Docker Containers Status",
     radius: 12,
@@ -31,7 +31,6 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       style: {
         border: { fg: "cyan" },
         fg: "white",
-        bg: "black",
       },
       scrollable: true,
       alwaysScroll: true,

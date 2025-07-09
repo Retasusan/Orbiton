@@ -9,7 +9,6 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
     style: {
       border: { fg: "cyan" },
       fg: "white",
-      bg: "black",
     },
     scrollable: true,
     alwaysScroll: true,

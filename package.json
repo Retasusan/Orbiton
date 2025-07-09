@@ -25,6 +25,7 @@
     "monitoring"
   ],
   "dependencies": {
+    "axios": "^1.10.0",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.11.0",
     "cfonts": "^3.3.0",
