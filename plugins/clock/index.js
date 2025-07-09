@@ -1,7 +1,12 @@
 import blessed from "blessed";
 import cfonts from "cfonts";
+import os from "os";
+import contrib from "blessed-contrib";
+import { getTheme } from "../../ui/theme.js";
+import batteryLevel from "battery-level";
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
+  const theme = getTheme();
   const {
     font = "block",
     colors = ["green", "cyan", "red"],
@@ -11,42 +16,41 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   } = options;
 
   const use12h = format === "12h";
+  const clockHeight = Math.floor(rowSpan * 0.5);
+  const contentHeight = rowSpan - clockHeight + 0.25;
 
-  const clockHeight = Math.floor(rowSpan * 0.5); // 上半分に時計
-  const contentHeight = rowSpan - clockHeight + 0.25; // 下半分
-
-  // 時計（上半分）
   const clockBox = grid.set(row, col, clockHeight, colSpan, blessed.box, {
     label: "Clock",
     tags: true,
     border: { type: "line" },
-    style: { border: { fg: "white" }, fg: "white" },
-    padding: { top: 1, left: 2, right: 2, bottom: 2 },
+    style: { border: { fg: "white" }, fg: theme.fg || "white" },
+    padding: { left: 2, right: 2, bottom: 1 },
     align: "center",
   });
 
-  // 下半分を左右2分割
   const leftColSpan = Math.floor(colSpan * 0.5);
   const rightCol = col + leftColSpan;
   const rightColSpan = colSpan - leftColSpan;
 
-  // 左下：Progress Bars
-  const barsBox = grid.set(
+  const cpuLine = grid.set(
     row + clockHeight,
     col,
     contentHeight,
     leftColSpan,
-    blessed.box,
+    contrib.line,
     {
-      label: "Progress",
-      tags: true,
-      border: { type: "line" },
-      style: { fg: "white" },
-      padding: { top: 1, left: 2, right: 2, bottom: 1 },
+      label: "Resource Usage (%)",
+      showLegend: true,
+      style: {
+        text: "white",
+        baseline: "black",
+      },
+      minY: 0,
+      maxY: 125,
+      wholeNumbersOnly: true,
     }
   );
 
-  // 右下：Info Box（タイムゾーンなど）
   const infoBox = grid.set(
     row + clockHeight,
     rightCol,
@@ -57,31 +61,98 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       label: "Info",
       tags: true,
       border: { type: "line" },
-      style: { fg: "white" },
+      style: { fg: theme.fg || "white" },
       padding: { top: 1, left: 2, right: 2, bottom: 1 },
       scrollable: true,
     }
   );
 
-  const barWidth = Math.max(27, leftColSpan * 4);
+  // ========== 状態 ==========
 
-  function createAsciiProgressBar(progress, width) {
-    const filledLength = Math.floor(progress * width);
-    const emptyLength = width - filledLength;
-    const fullBlock = "█";
-    const lightShade = "░";
-    const barStr =
-      fullBlock.repeat(filledLength) + lightShade.repeat(emptyLength);
-    return `{green-fg}${barStr}{/}`;
+  const cpuHistory = Array(60).fill(0);
+  const memHistory = Array(60).fill(0);
+  const batHistory = Array(60).fill(null);
+
+  let prevCpu = getCpuUsage();
+
+  // ========== ヘルパー関数 ==========
+
+  function getCpuUsage() {
+    const cpus = os.cpus();
+    let totalIdle = 0;
+    let totalTick = 0;
+    for (const cpu of cpus) {
+      for (const type in cpu.times) {
+        totalTick += cpu.times[type];
+      }
+      totalIdle += cpu.times.idle;
+    }
+    return {
+      idle: totalIdle / cpus.length,
+      total: totalTick / cpus.length,
+    };
   }
 
-  function updateTime() {
-    const now = new Date();
-    const hour = now.getHours();
-    const min = now.getMinutes();
-    const sec = now.getSeconds();
-    const ms = now.getMilliseconds();
+  function getCpuPercent() {
+    const currentCpu = getCpuUsage();
+    const idleDiff = currentCpu.idle - prevCpu.idle;
+    const totalDiff = currentCpu.total - prevCpu.total;
+    prevCpu = currentCpu;
+    if (totalDiff === 0) return 0;
+    return Math.round(((totalDiff - idleDiff) / totalDiff) * 100);
+  }
 
+  function getMemoryUsage() {
+    const total = os.totalmem();
+    const free = os.freemem();
+    const used = total - free;
+    return Math.round((used / total) * 100);
+  }
+
+  async function getBatteryPercentage() {
+    try {
+      const level = await batteryLevel(); // 0〜1
+      return Math.round(level * 100);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function updateMetrics() {
+    const cpu = getCpuPercent();
+    const mem = getMemoryUsage();
+    const bat = await getBatteryPercentage();
+
+    cpuHistory.push(cpu);
+    memHistory.push(mem);
+    batHistory.push(bat ?? null);
+
+    if (cpuHistory.length > 60) cpuHistory.shift();
+    if (memHistory.length > 60) memHistory.shift();
+    if (batHistory.length > 60) batHistory.shift();
+
+    const labels = Array.from({ length: 60 }, (_, i) => `${i - 59}s`);
+
+    const data = [
+      { title: "CPU", x: labels, y: cpuHistory, style: { line: "green" } },
+      { title: "Memory", x: labels, y: memHistory, style: { line: "yellow" } },
+    ];
+
+    if (batHistory.some((v) => v !== null)) {
+      data.push({
+        title: "Battery",
+        x: labels,
+        y: batHistory.map((v) => v ?? 0),
+        style: { line: "blue" },
+      });
+    }
+
+    cpuLine.setData(data);
+    cpuLine.screen.render();
+  }
+
+  async function updateTime() {
+    const now = new Date();
     const timeStr = use12h
       ? now.toLocaleTimeString("en-US", { timeZone, hour12: true })
       : now.toLocaleTimeString("en-GB", { timeZone, hour12: false });
@@ -98,23 +169,8 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
 
     clockBox.setContent(rendered.string);
 
-    // Progress Bars
-    const secProgress = (sec + ms / 1000) / 60;
-    const minProgress = (min + sec / 60) / 60;
-
-    barsBox.setContent(
-      `{bold}{red-fg}Second: {/}{/bold}${createAsciiProgressBar(
-        secProgress,
-        barWidth
-      )}\n\n` +
-        `{bold}{red-fg}Minute: {/}{/bold}${createAsciiProgressBar(
-          minProgress,
-          barWidth
-        )}`
-    );
-
-    // Info Box
     const dateStr = now.toLocaleDateString("en-US", { timeZone });
+
     function formatUptime(seconds) {
       const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
       const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
@@ -122,7 +178,7 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       return `${h}:${m}:${s}`;
     }
 
-    const nowUtc = new Date(now.toISOString()); // UTC基準
+    const nowUtc = new Date(now.toISOString());
     const nowIso = now.toISOString();
     const nowUnix = Math.floor(now.getTime() / 1000);
     const offsetMin = now.getTimezoneOffset();
@@ -147,8 +203,15 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   }
 
   updateTime();
-  const timer = setInterval(updateTime, updateInterval);
-  clockBox.on("destroy", () => clearInterval(timer));
+  updateMetrics();
+
+  const timeTimer = setInterval(updateTime, updateInterval);
+  const metricTimer = setInterval(updateMetrics, 1000);
+
+  clockBox.on("destroy", () => {
+    clearInterval(timeTimer);
+    clearInterval(metricTimer);
+  });
 
   return clockBox;
 }
