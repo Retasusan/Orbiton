@@ -23,38 +23,38 @@ export async function renderDashboard() {
 
   let layout = [];
 
-  if (config.custom && Array.isArray(config.plugins)) {
-    layout = config.plugins.map((w) => w.position); // ユーザー定義座標
+  if (config.custom) {
+    // customがtrueならconfig.pluginsのpositionをそのまま使う
+    layout = config.plugins.map((w) => w.position);
   } else {
-    const presetFile = path.resolve(
-      "config",
-      "presets",
-      `${config.preset || "developer"}.json`
-    );
+    // customがfalseならpresetのレイアウトを読み込む
+    const presetName = config.preset || "developer";
+    const presetFile = path.resolve("config", "presets", `${presetName}.json`);
+
     if (fs.existsSync(presetFile)) {
       layout = JSON.parse(fs.readFileSync(presetFile, "utf-8"));
     } else {
       console.warn(
-        `Preset "${config.preset}" not found. Falling back to developer.`
+        `Preset "${presetName}" not found. Falling back to developer.`
       );
-      layout = JSON.parse(
-        fs.readFileSync(
-          path.resolve("config", "presets", "developer.json"),
-          "utf-8"
-        )
-      );
+      const fallbackFile = path.resolve("config", "presets", "developer.json");
+      layout = JSON.parse(fs.readFileSync(fallbackFile, "utf-8"));
     }
   }
 
+  // プラグイン数とレイアウト数を比較してエラー処理
   if (layout.length !== plugins.length) {
     throw new Error(
       `❌ Layout mismatch:\n` +
         `- Plugins: ${plugins.length}\n` +
         `- Layout positions: ${layout.length}\n\n` +
-        `💡 Make sure the preset "${config.preset}.json" defines one position per plugin.`
+        `💡 Make sure the preset "${
+          config.preset || "developer"
+        }.json" defines one position per plugin.`
     );
   }
 
+  // プラグインを配置
   for (let i = 0; i < plugins.length; i++) {
     const { mod, name } = plugins[i];
     const configPlugin = config.plugins[i];
@@ -69,7 +69,10 @@ export async function renderDashboard() {
       options = configPlugin.options;
     }
 
-    const pos = configPlugin.position || [0, 0, 6, 6];
+    // presetを使うならconfigPlugin.positionは無視してpresetの座標を使う
+    // customがtrueならconfigPlugin.positionを使う
+    const pos = config.custom ? configPlugin.position : layout[i];
+
     mod.createWidget(grid, pos, options);
   }
 

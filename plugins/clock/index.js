@@ -3,7 +3,7 @@ import cfonts from "cfonts";
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const {
-    font = "simple",
+    font = "block",
     colors = ["green", "cyan"],
     updateInterval = 1000,
     timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
