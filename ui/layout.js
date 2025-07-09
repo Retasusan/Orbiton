@@ -12,7 +12,7 @@ export function createLayout() {
     const widget = originalSet(...args);
 
     // blessed.boxまたはその派生か判定（typeプロパティがboxかどうか）
-    if (widget.type === "box") {
+    if (widget.type === "box" && "scrollable" in widget) {
       widget.scrollable = true;
       widget.alwaysScroll = true;
 

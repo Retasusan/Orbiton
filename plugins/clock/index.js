@@ -1,158 +1,113 @@
 import blessed from "blessed";
+import contrib from "blessed-contrib";
 import cfonts from "cfonts";
 
 export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
   const {
     font = "block",
-    colors = ["green", "cyan"],
-    updateInterval = 1000,
+    colors = ["green", "cyan", "red"],
+    updateInterval = 100,
     timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
     format = "24h",
-    show = {
-      weekday: true,
-      date: true,
-      time12h: true,
-      timezone: true,
-      unixEpoch: true,
-      dayOfYear: true,
-      iso8601: true,
-      weekNumber: true,
-      timezoneOffset: true,
-      ampm: true,
-      isoWeekday: true,
-    },
   } = options;
 
   const use12h = format === "12h";
 
-  const box = grid.set(row, col, rowSpan, colSpan, blessed.box, {
+  const clockHeight = Math.floor(rowSpan * 0.5); // 上半分に時計
+  const contentHeight = rowSpan - clockHeight; // 下半分にその他
+
+  // 時計（上半分）
+  const clockBox = grid.set(row, col, clockHeight, colSpan, blessed.box, {
     label: "Clock",
     tags: true,
     border: { type: "line" },
-    style: {
-      border: { fg: "white" },
-      fg: "white",
-      bg: "black",
-    },
-    scrollable: true,
-    alwaysScroll: true,
+    style: { border: { fg: "white" }, fg: "white", bg: "black" },
     padding: { top: 1, left: 2, right: 2, bottom: 1 },
+    align: "center",
   });
 
-  // ISO週番号を計算するヘルパー
-  function getISOWeekNumber(date) {
-    const tmpDate = new Date(date.getTime());
-    tmpDate.setHours(0, 0, 0, 0);
-    // 木曜日に合わせる（ISO週は木曜日の週番号を採用）
-    tmpDate.setDate(tmpDate.getDate() + 3 - ((tmpDate.getDay() + 6) % 7));
-    const week1 = new Date(tmpDate.getFullYear(), 0, 4);
-    return (
-      1 +
-      Math.round(
-        ((tmpDate.getTime() - week1.getTime()) / 86400000 -
-          3 +
-          ((week1.getDay() + 6) % 7)) /
-          7
-      )
-    );
+  // 下半分を左右2分割
+  const leftColSpan = Math.floor(colSpan * 0.5);
+
+  // 左：ドーナツ
+  const donut = grid.set(
+    row + clockHeight,
+    col,
+    contentHeight + 0.25, // 0.25は下のborderのため
+    leftColSpan,
+    contrib.donut,
+    {
+      label: "Minute Progress",
+      radius: 10,
+      arcWidth: 4,
+      yPadding: 2,
+      data: [],
+    }
+  );
+
+  // 右：進捗バー + タイムゾーン
+  const rightCol = col + leftColSpan;
+  const rightColSpan = colSpan - leftColSpan;
+  const barsBoxHeight = Math.floor(contentHeight * 0.7);
+  const barsBox = grid.set(
+    row + clockHeight,
+    rightCol,
+    barsBoxHeight + 0.25, // 0.25は下のborderのため
+    rightColSpan,
+    blessed.box,
+    {
+      label: "Progress Bars",
+      tags: true,
+      border: { type: "line" },
+      style: { fg: "white", bg: "black" },
+      padding: { top: 1, left: 2, right: 2, bottom: 1 },
+      scrollable: false,
+    }
+  );
+
+  const timezoneBox = grid.set(
+    row + clockHeight + barsBoxHeight,
+    rightCol,
+    contentHeight - barsBoxHeight + 0.25, // 0.25は下のborderのため
+    rightColSpan,
+    blessed.box,
+    {
+      label: "Timezone",
+      tags: true,
+      style: { fg: "white", bg: "black" },
+      content: `{center}{bold}${timeZone}{/bold}{/center}`,
+      align: "center",
+    }
+  );
+
+  const barWidth = Math.max(27, rightColSpan * 4);
+
+  function getTimeColor(second) {
+    if (second >= 0 && second < 20) return "blue";
+    if (second >= 20 && second < 40) return "green";
+    return "magenta";
   }
 
-  function formatDetailedTime(now) {
-    const lines = [];
-    const dayOfYear = Math.floor(
-      (now - new Date(now.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
-    );
-
-    if (show.weekday) {
-      const weekday = now.toLocaleDateString("en-US", {
-        weekday: "long",
-        timeZone,
-      });
-      lines.push(`{bold}{yellow-fg}${weekday}{/bold}`);
-    }
-    if (show.date) {
-      const date = now.toLocaleDateString("en-GB", { timeZone });
-      lines.push(`{bold}{yellow-fg}${date}{/bold}`);
-    }
-    if (show.time12h && use12h) {
-      const time = now
-        .toLocaleTimeString("en-US", {
-          hour12: true,
-          timeZone,
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-        .replace(/AM|PM/i, "")
-        .trim();
-      lines.push(`{bold}{cyan-fg}${time}{/}`);
-    }
-    if (show.ampm && use12h) {
-      const ampm = now
-        .toLocaleTimeString("en-US", {
-          hour12: true,
-          timeZone,
-          hour: "2-digit",
-        })
-        .match(/AM|PM/i)[0];
-      lines.push(`{bold}{magenta-fg}AM/PM: ${ampm}{/}`);
-    }
-    if (show.timezone) {
-      lines.push(`{bold}{green-fg}Timezone: ${timeZone}{/}`);
-    }
-    if (show.timezoneOffset) {
-      const offset = -now.getTimezoneOffset();
-      const sign = offset >= 0 ? "+" : "-";
-      const hours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, "0");
-      const minutes = String(Math.abs(offset) % 60).padStart(2, "0");
-      lines.push(`{bold}{green-fg}UTC Offset: ${sign}${hours}:${minutes}{/}`);
-    }
-    if (show.unixEpoch) {
-      const epoch = Math.floor(now.getTime() / 1000);
-      lines.push(`{bold}{magenta-fg}Unix Epoch: ${epoch}{/}`);
-    }
-    if (show.dayOfYear) {
-      lines.push(`{bold}{white-fg}Day of Year: ${dayOfYear}{/}`);
-    }
-    if (show.weekNumber) {
-      const weekNum = getISOWeekNumber(now);
-      lines.push(`{bold}{cyan-fg}ISO Week Number: ${weekNum}{/}`);
-    }
-    if (show.isoWeekday) {
-      const isoWeekday = ((now.getDay() + 6) % 7) + 1; // ISOは月曜=1, 日曜=7
-      lines.push(`{bold}{yellow-fg}ISO Weekday: ${isoWeekday}{/}`);
-    }
-    if (show.iso8601) {
-      const iso = now.toISOString();
-      lines.push(`{bold}{red-fg}ISO 8601: ${iso}{/}`);
-    }
-
-    return lines.join("\n");
+  function createAsciiProgressBar(progress, width) {
+    const filledLength = Math.floor(progress * width);
+    const emptyLength = width - filledLength;
+    const fullBlock = "█";
+    const lightShade = "░";
+    const barStr =
+      fullBlock.repeat(filledLength) + lightShade.repeat(emptyLength);
+    return `{green-fg}${barStr}{/}`;
   }
 
   function updateTime() {
     const now = new Date();
-    let timeStr;
-    if (use12h) {
-      const parts =
-        now
-          .toLocaleTimeString("en-US", {
-            hour12: true,
-            timeZone,
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          })
-          .match(/(AM|PM)?\s*(.*)/i) || [];
-      const ampm = parts[1] || "";
-      const time = parts[2] || "";
-      timeStr = `${ampm} ${time}`.trim();
-    } else {
-      timeStr = now.toLocaleTimeString("en-GB", {
-        hour12: false,
-        timeZone,
-      });
-    }
+    const hour = now.getHours();
+    const min = now.getMinutes();
+    const sec = now.getSeconds();
+    const ms = now.getMilliseconds();
+
+    const timeStr = use12h
+      ? now.toLocaleTimeString("en-US", { timeZone, hour12: true })
+      : now.toLocaleTimeString("en-GB", { timeZone, hour12: false });
 
     const rendered = cfonts.render(timeStr, {
       font,
@@ -161,19 +116,40 @@ export function createWidget(grid, [row, col, rowSpan, colSpan], options = {}) {
       letterSpacing: 1,
       lineHeight: 1,
       space: true,
-      maxLength: "0",
-      gradient: false,
       env: "node",
     });
 
-    box.setContent(rendered.string + "\n" + formatDetailedTime(now));
-    box.screen.render();
+    clockBox.setContent(rendered.string);
+
+    // ドーナツの進捗（1分で一周）
+    const minutePercent = Math.round(((sec + ms / 1000) / 60) * 100);
+    donut.setData([
+      { label: "min", percent: minutePercent, color: getTimeColor(hour) },
+    ]);
+    donut.setLabel(`Minute Progress (${min}m)`);
+
+    // 進捗バー計算
+    const secProgress = (sec + ms / 1000) / 60;
+    const minProgress = (min + sec / 60) / 60;
+
+    barsBox.setContent(
+      `{bold}{red-fg}Second: {/}{/bold}${createAsciiProgressBar(
+        secProgress,
+        barWidth
+      )}\n\n` +
+        `{bold}{red-fg}Minute: {/}{/bold}${createAsciiProgressBar(
+          minProgress,
+          barWidth
+        )}\n\n`
+    );
+
+    clockBox.screen.render();
   }
 
   updateTime();
   const timer = setInterval(updateTime, updateInterval);
 
-  box.on("destroy", () => clearInterval(timer));
+  clockBox.on("destroy", () => clearInterval(timer));
 
-  return box;
+  return clockBox;
 }

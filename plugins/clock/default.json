@@ -1,6 +1,6 @@
 {
   "font": "block",
-  "colors": ["green", "cyan"],
+  "colors": ["green", "cyan", "red"],
   "updateInterval": 1000,
   "timeZone": "Asia/Tokyo",
   "format": "24h",
