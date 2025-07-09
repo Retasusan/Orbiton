@@ -13,10 +13,10 @@ async function init() {
     custom: false,
     preset: "developer",
     plugins: [
-      { name: "docker-monitor", options: "default" },
+      { name: "sysinfo", options: "default" },
       { name: "clock", options: "default" },
       { name: "sysinfo", options: "default" },
-      { name: "weather", options: "default" },
+      { name: "docker-monitor", options: "default" },
     ],
   };
   fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
