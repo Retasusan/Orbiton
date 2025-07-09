@@ -1,5 +1,21 @@
 {
   "custom": false,
-  "preset": "developer",
-  "plugins": ["weather", "weather", "weather", "weather"]
+  "plugins": [
+    {
+      "name": "clock",
+      "options": "default"
+    },
+    {
+      "name": "sysinfo",
+      "options": "default"
+    },
+    {
+      "name": "docker-monitor",
+      "options": "default"
+    },
+    {
+      "name": "clock",
+      "options": "default"
+    }
+  ]
 }
