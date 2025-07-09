@@ -4,11 +4,13 @@ import { loadPlugins } from "./loadPlugins.js";
 import fs from "fs";
 import path from "path";
 import { loadTheme } from "./theme.js";
+import { showWelcome } from "./showWelcome.js";
 
 export async function renderDashboard() {
   const { screen, grid } = createLayout();
   const config = loadUserConfig();
   await loadTheme(config.theme || "default");
+  await showWelcome(screen);
 
   const { plugins, failedPlugins } = await loadPlugins(config.plugins || []);
 
