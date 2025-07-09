@@ -1,58 +1,47 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
 import fs from "fs";
+import path from "path";
+import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { loadUserConfig } from "./loadConfig.js";
 
-vi.mock("fs");
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 describe("loadUserConfig", () => {
-  afterEach(() => {
-    vi.resetAllMocks();
+  const configPath = path.join(__dirname, "..", ".orbitonrc.json");
+
+  beforeEach(() => {
+    // fs.existsSyncとfs.readFileSyncのモックを準備
+    vi.restoreAllMocks();
   });
 
-  it("throws an error if config file does not exist", () => {
-    fs.existsSync.mockReturnValue(false);
+  it("throws error if config file does not exist", () => {
+    vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
     expect(() => loadUserConfig()).toThrowError(/Configuration file not found/);
   });
 
-  it("returns parsed config if file exists and is valid JSON", () => {
-    fs.existsSync.mockReturnValue(true);
-    fs.readFileSync.mockReturnValue(
-      JSON.stringify({
-        preset: "custom",
-        custom: true,
-        plugins: ["plugin1", "plugin2"],
-      })
-    );
-
-    const config = loadUserConfig();
-    expect(config).toEqual({
-      preset: "custom",
-      custom: true,
-      plugins: ["plugin1", "plugin2"],
-    });
-  });
-
-  it("returns default config and logs error if JSON is invalid", () => {
-    fs.existsSync.mockReturnValue(true);
-    fs.readFileSync.mockReturnValue("invalid json");
-
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-
-    const config = loadUserConfig();
-
-    expect(config).toEqual({
+  it("returns parsed config if file exists and valid JSON", () => {
+    const dummyConfig = {
       preset: "developer",
       custom: false,
-      plugins: [],
-    });
+      plugins: ["weather"],
+    };
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Invalid JSON in .orbitonrc.json"
-    );
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(dummyConfig));
 
-    consoleErrorSpy.mockRestore();
+    const config = loadUserConfig();
+    expect(config).toEqual(dummyConfig);
+  });
+
+  it("returns default config on invalid JSON", () => {
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockReturnValue("invalid json");
+
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const config = loadUserConfig();
+
+    expect(config).toEqual({ preset: "developer", custom: false, plugins: [] });
+    expect(consoleSpy).toHaveBeenCalledWith("Invalid JSON in .orbitonrc.json");
   });
 });
