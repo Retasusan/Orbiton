@@ -8,7 +8,7 @@
 import blessed from 'blessed';
 import contrib from 'blessed-contrib';
 import { EventEmitter } from 'events';
-import { PluginTestFramework, PluginTestUtils } from './PluginTestFramework.js';
+// PluginTestFramework will be imported dynamically when needed
 
 /**
  * Visual Test Runner with interactive dashboard
@@ -37,7 +37,7 @@ export class VisualTestRunner extends EventEmitter {
     this.statusBar = null;
     
     // Test Management
-    this.framework = new PluginTestFramework();
+    this.framework = null;
     this.testSuites = new Map();
     this.currentTest = null;
     this.testResults = [];
@@ -58,6 +58,14 @@ export class VisualTestRunner extends EventEmitter {
     // Logs
     this.logs = [];
     this.maxLogs = 1000;
+  }
+
+  async getFramework() {
+    if (!this.framework) {
+      const { PluginTestFramework } = await import('./PluginTestFramework.js');
+      this.framework = new PluginTestFramework();
+    }
+    return this.framework;
   }
 
   /**
@@ -259,8 +267,9 @@ export class VisualTestRunner extends EventEmitter {
   /**
    * Add a plugin class for testing
    */
-  addPlugin(name, PluginClass, options = {}) {
-    const suite = this.framework.createTestSuite(PluginClass, {
+  async addPlugin(name, PluginClass, options = {}) {
+    const framework = await this.getFramework();
+    const suite = framework.createTestSuite(PluginClass, {
       name,
       ...options
     });

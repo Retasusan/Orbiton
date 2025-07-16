@@ -604,47 +604,40 @@ orbiton plugin dev {{pluginName}}
 
 {{license}}
 `,
-        'test.js': `/**
- * @fileoverview Tests for {{pluginDisplayName}} Plugin
- */
-
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import {{pluginDisplayName}}Widget from './index.js';
-
-describe('{{pluginDisplayName}}Widget', () => {
-  let widget;
-
-  beforeEach(() => {
-    widget = new {{pluginDisplayName}}Widget({
-      title: 'Test {{pluginDisplayName}}'
-    });
-  });
-
-  afterEach(async () => {
-    if (widget) {
-      await widget.destroy();
-    }
-  });
-
-  test('should initialize correctly', async () => {
-    await widget.initialize();
-    
-    expect(widget.name).toBe('{{pluginName}}');
-    expect(widget.options.title).toBe('Test {{pluginDisplayName}}');
-  });
-
-  test('should render content', () => {
-    const html = widget.render();
-    
-    expect(html).toContain('{{pluginName}}-widget');
-    expect(html).toContain('{{pluginDisplayName}}');
-  });
-
-  test('should update without errors', async () => {
-    await widget.initialize();
-    await expect(widget.update()).resolves.not.toThrow();
-  });
-});`
+        'test.js': '/**\n' +
+' * @fileoverview Tests for {{pluginDisplayName}} Plugin\n' +
+' */\n\n' +
+'import { describe, test, expect, beforeEach, afterEach } from \'vitest\';\n' +
+'import {{pluginDisplayName}}Widget from \'./index.js\';\n\n' +
+'describe(\'{{pluginDisplayName}}Widget\', () => {\n' +
+'  let widget;\n\n' +
+'  beforeEach(() => {\n' +
+'    widget = new {{pluginDisplayName}}Widget({\n' +
+'      title: \'Test {{pluginDisplayName}}\'\n' +
+'    });\n' +
+'  });\n\n' +
+'  afterEach(async () => {\n' +
+'    if (widget) {\n' +
+'      await widget.destroy();\n' +
+'    }\n' +
+'  });\n\n' +
+'  test(\'should initialize correctly\', async () => {\n' +
+'    await widget.initialize();\n' +
+'    \n' +
+'    expect(widget.name).toBe(\'{{pluginName}}\');\n' +
+'    expect(widget.options.title).toBe(\'Test {{pluginDisplayName}}\');\n' +
+'  });\n\n' +
+'  test(\'should render content\', () => {\n' +
+'    const html = widget.render();\n' +
+'    \n' +
+'    expect(html).toContain(\'{{pluginName}}-widget\');\n' +
+'    expect(html).toContain(\'{{pluginDisplayName}}\');\n' +
+'  });\n\n' +
+'  test(\'should update without errors\', async () => {\n' +
+'    await widget.initialize();\n' +
+'    await expect(widget.update()).resolves.not.toThrow();\n' +
+'  });\n' +
+'});'
       }
     };
 
