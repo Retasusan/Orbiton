@@ -1,0 +1,59 @@
+{
+  "name": "{{name}}",
+  "version": "1.0.0",
+  "description": "{{description}}",
+  "author": "{{author}}",
+  "license": "MIT",
+  "keywords": [
+    "orbiton",
+    "dashboard",
+    "widget",
+    "{{category}}"
+  ],
+  "category": "{{category}}",
+  "size": "{{size}}",
+  "updateInterval": {{updateInterval}},
+  "main": "index.js",
+  "dependencies": [],
+  "peerDependencies": [],
+  "systemRequirements": {
+    "platform": [],
+    "commands": []
+  },
+  "optionsSchema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "Widget title to display",
+        "default": "{{name}}"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Basic Usage",
+      "description": "Simple configuration for {{name}}",
+      "config": {
+        "name": "{{name}}",
+        "position": [0, 0, 2, 2],
+        "options": {
+          "title": "My {{name}}"
+        }
+      }
+    }
+  ],
+  "ai": {
+    "patterns": {
+      "baseClass": "{{baseClass}}",
+      "dataSource": "{{dataSource}}",
+      "updatePattern": "{{updatePattern}}"
+    },
+    "examples": [
+      {
+        "scenario": "Basic widget setup",
+        "code": "// See index.js for implementation example"
+      }
+    ]
+  }
+}

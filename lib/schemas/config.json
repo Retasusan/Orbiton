@@ -1,0 +1,470 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://orbiton.dev/schemas/config.json",
+  "title": "Orbiton Dashboard Configuration",
+  "description": "Configuration schema for Orbiton dashboard with comprehensive validation and AI-friendly documentation",
+  "type": "object",
+  "properties": {
+    "autoDetect": {
+      "type": "boolean",
+      "description": "Enable automatic environment detection and plugin suggestion",
+      "default": true,
+      "examples": [true, false],
+      "ai": {
+        "description": "When true, Orbiton automatically detects your environment (Docker, Git, etc.) and suggests relevant plugins",
+        "recommendation": "Keep enabled for zero-configuration experience"
+      }
+    },
+    "layout": {
+      "type": "object",
+      "description": "Layout configuration for the dashboard grid system",
+      "properties": {
+        "preset": {
+          "type": "string",
+          "description": "Predefined layout preset",
+          "enum": ["developer", "ops", "minimal", "monitoring", "custom"],
+          "default": "developer",
+          "examples": ["developer", "ops", "minimal"],
+          "ai": {
+            "description": "Layout presets provide optimized configurations for different use cases",
+            "presets": {
+              "developer": "Git status, system monitor, Docker containers, clock",
+              "ops": "System resources, network status, process monitor, logs",
+              "minimal": "Clock and basic system info only",
+              "monitoring": "Comprehensive system and application monitoring"
+            }
+          }
+        },
+        "custom": {
+          "type": "boolean",
+          "description": "Whether to use custom layout instead of preset",
+          "default": false
+        },
+        "grid": {
+          "type": "object",
+          "description": "Grid dimensions for custom layouts",
+          "properties": {
+            "rows": {
+              "type": "integer",
+              "description": "Number of rows in the grid",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 4
+            },
+            "cols": {
+              "type": "integer",
+              "description": "Number of columns in the grid",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 4
+            }
+          },
+          "required": ["rows", "cols"],
+          "additionalProperties": false
+        },
+        "responsive": {
+          "type": "boolean",
+          "description": "Enable responsive layout that adapts to terminal size",
+          "default": true
+        },
+        "spacing": {
+          "type": "integer",
+          "description": "Spacing between widgets in characters",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 1
+        },
+        "padding": {
+          "type": "integer",
+          "description": "Padding around the entire dashboard",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Array of plugin configurations",
+      "items": {
+        "$ref": "#/definitions/pluginConfig"
+      },
+      "ai": {
+        "description": "Each plugin configuration defines a widget to display on the dashboard",
+        "commonPlugins": [
+          "clock",
+          "system-monitor",
+          "docker-monitor",
+          "git-status",
+          "weather",
+          "network-monitor"
+        ]
+      }
+    },
+    "theme": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Built-in theme name",
+          "enum": ["default", "dark", "light", "minimal", "cyberpunk", "retro"],
+          "default": "default"
+        },
+        {
+          "$ref": "#/definitions/themeConfig"
+        }
+      ],
+      "ai": {
+        "description": "Theme controls colors and styling across all widgets",
+        "builtinThemes": {
+          "default": "Clean and modern with blue accents",
+          "dark": "Dark theme optimized for low-light environments",
+          "light": "Light theme with high contrast",
+          "minimal": "Minimal styling with subtle borders",
+          "cyberpunk": "Neon colors with futuristic styling",
+          "retro": "Vintage terminal aesthetic"
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "description": "Performance and resource management settings",
+      "properties": {
+        "updateInterval": {
+          "type": "integer",
+          "description": "Global update interval in milliseconds",
+          "minimum": 1000,
+          "maximum": 300000,
+          "default": 5000,
+          "ai": {
+            "description": "How often widgets refresh their data. Lower values = more responsive but higher CPU usage",
+            "recommendations": {
+              "development": 2000,
+              "production": 5000,
+              "battery": 10000
+            }
+          }
+        },
+        "maxConcurrentUpdates": {
+          "type": "integer",
+          "description": "Maximum number of widgets that can update simultaneously",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5
+        },
+        "maxMemoryUsage": {
+          "type": "integer",
+          "description": "Maximum memory usage in bytes",
+          "minimum": 50000000,
+          "default": 104857600,
+          "ai": {
+            "description": "Memory limit for the entire dashboard. Default is 100MB"
+          }
+        },
+        "pauseInvisibleWidgets": {
+          "type": "boolean",
+          "description": "Pause updates for widgets that are not visible",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "keybindings": {
+      "type": "object",
+      "description": "Custom keyboard shortcuts",
+      "properties": {
+        "quit": {
+          "type": "array",
+          "description": "Keys to quit the application",
+          "items": { "type": "string" },
+          "default": ["q", "ctrl+c"]
+        },
+        "refresh": {
+          "type": "array",
+          "description": "Keys to refresh current widget",
+          "items": { "type": "string" },
+          "default": ["r", "f5"]
+        },
+        "help": {
+          "type": "array",
+          "description": "Keys to show help",
+          "items": { "type": "string" },
+          "default": ["h", "f1"]
+        }
+      },
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]*$": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "logging": {
+      "type": "object",
+      "description": "Logging configuration",
+      "properties": {
+        "level": {
+          "type": "string",
+          "description": "Log level",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info"
+        },
+        "file": {
+          "type": "string",
+          "description": "Log file path (optional)"
+        },
+        "console": {
+          "type": "boolean",
+          "description": "Enable console logging",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "pluginConfig": {
+      "type": "object",
+      "description": "Configuration for a single plugin/widget",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Plugin name (must match plugin directory or npm package)",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "examples": ["clock", "system-monitor", "docker-monitor", "git-status"],
+          "ai": {
+            "description": "Plugin name should match the directory name in plugins/ or npm package name",
+            "naming": "Use kebab-case (lowercase with hyphens)"
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the plugin is enabled",
+          "default": true
+        },
+        "position": {
+          "type": "array",
+          "description": "Widget position as [row, col, rowSpan, colSpan]",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "examples": [[0, 0, 2, 2], [1, 2, 1, 3]],
+          "ai": {
+            "description": "Position array defines widget placement: [startRow, startCol, heightInRows, widthInCols]",
+            "examples": {
+              "[0, 0, 1, 1]": "Top-left corner, 1x1 size",
+              "[0, 0, 2, 3]": "Top-left corner, 2 rows high, 3 columns wide",
+              "[1, 2, 1, 2]": "Second row, third column, 1x2 size"
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "description": "Plugin-specific configuration options",
+          "ai": {
+            "description": "Options vary by plugin. Check plugin's optionsSchema in plugin.json",
+            "commonOptions": {
+              "title": "Custom title for the widget",
+              "updateInterval": "Override global update interval",
+              "theme": "Plugin-specific theme overrides"
+            }
+          }
+        },
+        "updateInterval": {
+          "type": "integer",
+          "description": "Override global update interval for this plugin (milliseconds)",
+          "minimum": 1000,
+          "maximum": 300000
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Plugin priority for resource allocation (higher = more important)",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 5
+        },
+        "style": {
+          "$ref": "#/definitions/widgetStyle"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "themeConfig": {
+      "type": "object",
+      "description": "Custom theme configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Theme name"
+        },
+        "colors": {
+          "type": "object",
+          "description": "Color palette",
+          "properties": {
+            "primary": { "type": "string", "description": "Primary color" },
+            "secondary": { "type": "string", "description": "Secondary color" },
+            "accent": { "type": "string", "description": "Accent color" },
+            "background": { "type": "string", "description": "Background color" },
+            "foreground": { "type": "string", "description": "Text color" },
+            "border": { "type": "string", "description": "Border color" },
+            "success": { "type": "string", "description": "Success color" },
+            "warning": { "type": "string", "description": "Warning color" },
+            "error": { "type": "string", "description": "Error color" }
+          },
+          "additionalProperties": false,
+          "ai": {
+            "description": "Colors can be named colors (red, blue) or hex codes (#ff0000)",
+            "namedColors": ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"],
+            "examples": {
+              "primary": "#0080ff",
+              "accent": "yellow",
+              "error": "#ff4444"
+            }
+          }
+        },
+        "styles": {
+          "type": "object",
+          "description": "Style definitions for different elements",
+          "properties": {
+            "title": { "$ref": "#/definitions/textStyle" },
+            "border": { "$ref": "#/definitions/borderStyle" },
+            "focus": { "$ref": "#/definitions/textStyle" },
+            "error": { "$ref": "#/definitions/textStyle" },
+            "success": { "$ref": "#/definitions/textStyle" },
+            "warning": { "$ref": "#/definitions/textStyle" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "textStyle": {
+      "type": "object",
+      "description": "Text styling options",
+      "properties": {
+        "fg": { "type": "string", "description": "Foreground color" },
+        "bg": { "type": "string", "description": "Background color" },
+        "bold": { "type": "boolean", "description": "Bold text" },
+        "italic": { "type": "boolean", "description": "Italic text" },
+        "underline": { "type": "boolean", "description": "Underlined text" },
+        "inverse": { "type": "boolean", "description": "Inverse colors" }
+      },
+      "additionalProperties": false
+    },
+    "borderStyle": {
+      "type": "object",
+      "description": "Border styling options",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Border type",
+          "enum": ["line", "double", "round", "single", "heavy", "none"],
+          "default": "line"
+        },
+        "fg": { "type": "string", "description": "Border color" },
+        "bg": { "type": "string", "description": "Border background" }
+      },
+      "additionalProperties": false
+    },
+    "widgetStyle": {
+      "type": "object",
+      "description": "Widget-specific styling",
+      "properties": {
+        "border": { "$ref": "#/definitions/borderStyle" },
+        "label": { "$ref": "#/definitions/textStyle" },
+        "content": { "$ref": "#/definitions/textStyle" }
+      },
+      "additionalProperties": true,
+      "ai": {
+        "description": "Widget styles override theme defaults for specific widgets"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "autoDetect": true,
+      "layout": {
+        "preset": "developer"
+      },
+      "plugins": [
+        {
+          "name": "clock",
+          "position": [0, 0, 1, 1],
+          "options": {
+            "format": "24h",
+            "showDate": true
+          }
+        },
+        {
+          "name": "system-monitor",
+          "position": [0, 1, 2, 2],
+          "options": {
+            "updateInterval": 2000,
+            "showDetails": true
+          }
+        }
+      ],
+      "theme": "dark"
+    },
+    {
+      "autoDetect": false,
+      "layout": {
+        "custom": true,
+        "grid": { "rows": 3, "cols": 4 }
+      },
+      "plugins": [
+        {
+          "name": "docker-monitor",
+          "position": [0, 0, 3, 2],
+          "options": {
+            "showOnlyRunning": true
+          }
+        },
+        {
+          "name": "git-status",
+          "position": [0, 2, 1, 2]
+        }
+      ],
+      "theme": {
+        "name": "custom",
+        "colors": {
+          "primary": "#00ff41",
+          "accent": "#ff8000"
+        }
+      },
+      "performance": {
+        "updateInterval": 3000,
+        "maxConcurrentUpdates": 3
+      }
+    }
+  ],
+  "ai": {
+    "description": "This schema defines the complete configuration format for Orbiton dashboard",
+    "quickStart": {
+      "minimal": {
+        "plugins": [
+          { "name": "clock", "position": [0, 0, 1, 1] }
+        ]
+      },
+      "developer": {
+        "layout": { "preset": "developer" },
+        "autoDetect": true
+      },
+      "custom": {
+        "layout": { "custom": true, "grid": { "rows": 4, "cols": 4 } },
+        "plugins": [
+          { "name": "system-monitor", "position": [0, 0, 2, 2] },
+          { "name": "docker-monitor", "position": [0, 2, 2, 2] }
+        ]
+      }
+    },
+    "validation": "Use this schema to validate configuration files and provide helpful error messages",
+    "generation": "AI assistants can use this schema to generate valid configurations"
+  }
+}

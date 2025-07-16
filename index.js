@@ -1,41 +1,18 @@
 #!/usr/bin/env node
-import fs from "fs";
-import path from "path";
-import { renderDashboard } from "./ui/index.js";
 
-async function init() {
-  const configPath = path.resolve(process.cwd(), ".orbitonrc.json");
-  if (fs.existsSync(configPath)) {
-    console.error(".orbitonrc.json already exists.");
-    process.exit(1);
-  }
-  const defaultConfig = {
-    custom: false,
-    preset: "developer",
-    plugins: [
-      { name: "sysinfo", options: "default" },
-      { name: "clock", options: "default" },
-      { name: "sysinfo", options: "default" },
-      { name: "docker-monitor", options: "default" },
-    ],
-  };
-  fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
-  console.log("Created default .orbitonrc.json");
-}
+/**
+ * @fileoverview Main entry point for Orbiton Dashboard
+ * 
+ * This file redirects to the new CLI system in src/index.js
+ * 
+ * @author Orbiton Team
+ * @version 2.0.0
+ */
 
-async function main() {
-  const args = process.argv.slice(2);
-
-  if (args[0] === "init") {
-    await init();
-    process.exit(0);
-  }
-
-  try {
-    await renderDashboard();
-  } catch (err) {
-    throw new Error(`🚫 Failed to start dashboard:\n${err.message || err}`);
-  }
-}
-
-main();
+// Import and run the new CLI system
+import('./src/index.js').then(module => {
+  module.main();
+}).catch(error => {
+  console.error('Failed to start Orbiton:', error.message);
+  process.exit(1);
+});

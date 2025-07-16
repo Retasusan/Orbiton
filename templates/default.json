@@ -1,0 +1,135 @@
+{
+  "$schema": "../lib/schemas/config.json",
+  "description": "Default configuration template for {{name}} plugin",
+  "ai": {
+    "description": "This file provides default configuration values for the plugin",
+    "usage": "AI assistants can use this to understand common configuration patterns"
+  },
+  "configurations": {
+    "minimal": {
+      "description": "Minimal configuration with only required options",
+      "config": {
+        "name": "{{name}}",
+        "position": [0, 0, 2, 2],
+        "options": {}
+      }
+    },
+    "standard": {
+      "description": "Standard configuration with common options",
+      "config": {
+        "name": "{{name}}",
+        "position": [0, 0, 2, 2],
+        "options": {
+          "title": "{{name}}",
+          "updateInterval": 5000
+        }
+      }
+    },
+    "advanced": {
+      "description": "Advanced configuration with all available options",
+      "config": {
+        "name": "{{name}}",
+        "position": [0, 0, 3, 3],
+        "options": {
+          "title": "{{name}}",
+          "updateInterval": 2000,
+          "showDetails": true,
+          "theme": "auto"
+        },
+        "style": {
+          "border": {
+            "type": "line",
+            "fg": "cyan"
+          }
+        }
+      }
+    }
+  },
+  "commonOptions": {
+    "title": {
+      "type": "string",
+      "description": "Widget title to display",
+      "default": "{{name}}",
+      "examples": ["My Widget", "Custom Title"]
+    },
+    "updateInterval": {
+      "type": "number",
+      "description": "Update interval in milliseconds",
+      "default": 5000,
+      "examples": [1000, 5000, 30000]
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether the widget is enabled",
+      "default": true
+    },
+    "showBorder": {
+      "type": "boolean",
+      "description": "Whether to show widget border",
+      "default": true
+    },
+    "theme": {
+      "type": "string",
+      "description": "Widget theme override",
+      "enum": ["auto", "light", "dark"],
+      "default": "auto"
+    }
+  },
+  "positioning": {
+    "small": {
+      "description": "Small widget (1x1 or 1x2)",
+      "positions": [
+        [0, 0, 1, 1],
+        [0, 0, 1, 2],
+        [0, 3, 1, 1]
+      ]
+    },
+    "medium": {
+      "description": "Medium widget (2x2 or 2x3)",
+      "positions": [
+        [0, 0, 2, 2],
+        [0, 0, 2, 3],
+        [1, 1, 2, 2]
+      ]
+    },
+    "large": {
+      "description": "Large widget (3x3 or larger)",
+      "positions": [
+        [0, 0, 3, 3],
+        [0, 0, 4, 3],
+        [1, 0, 3, 4]
+      ]
+    }
+  },
+  "examples": {
+    "clockWidget": {
+      "name": "clock",
+      "position": [0, 0, 1, 1],
+      "options": {
+        "format": "24h",
+        "showDate": true
+      }
+    },
+    "systemMonitor": {
+      "name": "system-monitor",
+      "position": [0, 1, 2, 2],
+      "options": {
+        "updateInterval": 2000,
+        "showDetails": true,
+        "alerts": {
+          "cpu": 80,
+          "memory": 85
+        }
+      }
+    },
+    "weatherWidget": {
+      "name": "weather",
+      "position": [0, 3, 2, 1],
+      "options": {
+        "apiKey": "your-api-key",
+        "city": "London",
+        "units": "metric"
+      }
+    }
+  }
+}

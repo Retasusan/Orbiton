@@ -1,0 +1,297 @@
+{
+  "project": {
+    "name": "orbiton-dashboard",
+    "type": "tui-dashboard",
+    "description": "A beautiful, extensible terminal dashboard with zero-config setup and AI-friendly plugin development",
+    "framework": "blessed.js",
+    "language": "javascript",
+    "moduleSystem": "esm",
+    "version": "2.0.0",
+    "architecture": "plugin-based",
+    "targetEnvironment": "terminal"
+  },
+  "structure": {
+    "src/": "Core framework source code",
+    "plugins/": "Built-in plugin implementations",
+    "templates/": "Plugin development templates",
+    "examples/": "Example plugins and usage patterns",
+    "docs/": "Comprehensive documentation",
+    "types/": "TypeScript definitions for AI assistance",
+    "lib/": "Shared libraries and utilities",
+    "config/": "Configuration management"
+  },
+  "patterns": {
+    "pluginStructure": {
+      "baseClass": "BaseWidget or DataWidget",
+      "requiredMethods": ["initialize", "render"],
+      "optionalMethods": ["update", "destroy", "fetchData"],
+      "configFile": "plugin.json with metadata and schema",
+      "testFile": "test.js with comprehensive test suite",
+      "defaultsFile": "default.json with default configuration"
+    },
+    "fileNaming": {
+      "plugins": "plugins/{name}/index.js",
+      "config": "plugins/{name}/plugin.json",
+      "defaults": "plugins/{name}/default.json",
+      "tests": "plugins/{name}/test.js",
+      "templates": "templates/{type}-widget.js"
+    },
+    "codeStructure": {
+      "imports": "ES6 imports at top of file",
+      "exports": "Export default class for plugins",
+      "classStructure": "constructor -> lifecycle methods -> utility methods",
+      "errorHandling": "try-catch with graceful degradation",
+      "async": "Prefer async/await over promises"
+    }
+  },
+  "conventions": {
+    "naming": {
+      "plugins": "kebab-case (my-awesome-plugin)",
+      "classes": "PascalCase (MyAwesomePlugin)",
+      "methods": "camelCase (fetchData, renderContent)",
+      "constants": "UPPER_SNAKE_CASE (DEFAULT_UPDATE_INTERVAL)",
+      "files": "kebab-case.js (system-monitor.js)"
+    },
+    "errorHandling": {
+      "pattern": "Use try-catch with graceful degradation",
+      "logging": "Use this.logger for consistent logging",
+      "userFeedback": "Show error state in widget, don't crash dashboard",
+      "recovery": "Implement retry logic for transient errors"
+    },
+    "async": {
+      "preference": "async/await over promises",
+      "errorHandling": "Always wrap async operations in try-catch",
+      "timeouts": "Use AbortSignal.timeout() for network requests",
+      "concurrency": "Limit concurrent operations to prevent overload"
+    },
+    "imports": {
+      "style": "ES6 imports",
+      "baseClasses": "import { BaseWidget } from '../src/plugins/BaseWidget.js'",
+      "utilities": "import utilities from relative paths",
+      "nodeModules": "import external packages normally"
+    },
+    "exports": {
+      "plugins": "export default class PluginName extends BaseWidget",
+      "utilities": "Named exports for utility functions",
+      "constants": "Named exports for constants"
+    },
+    "documentation": {
+      "jsdoc": "Use JSDoc comments for all public methods",
+      "examples": "Include usage examples in comments",
+      "parameters": "Document all parameters with types",
+      "returns": "Document return values and types"
+    }
+  },
+  "templates": {
+    "basicWidget": {
+      "file": "./templates/basic-widget.js",
+      "description": "Simple widget for static or user-driven content",
+      "useCase": "Clocks, counters, simple displays",
+      "baseClass": "BaseWidget",
+      "keyMethods": ["initialize", "render", "getOptionsSchema"]
+    },
+    "dataWidget": {
+      "file": "./templates/data-widget.js",
+      "description": "Widget that fetches and displays dynamic data",
+      "useCase": "API data, system monitoring, real-time updates",
+      "baseClass": "DataWidget",
+      "keyMethods": ["initialize", "fetchData", "render", "getOptionsSchema"]
+    },
+    "advancedWidget": {
+      "file": "./templates/advanced-widget.js",
+      "description": "Complex widget with interactivity and advanced features",
+      "useCase": "Interactive dashboards, complex visualizations",
+      "baseClass": "DataWidget",
+      "keyMethods": ["initialize", "fetchData", "render", "handleKeyPress", "setupInteractivity"]
+    },
+    "pluginJson": {
+      "file": "./templates/plugin.json",
+      "description": "Plugin metadata and configuration schema",
+      "required": ["name", "version", "description", "optionsSchema"],
+      "optional": ["author", "license", "keywords", "category", "examples"]
+    },
+    "pluginTest": {
+      "file": "./templates/plugin-test.js",
+      "description": "Comprehensive test suite for plugins",
+      "framework": "vitest",
+      "coverage": ["initialization", "rendering", "data handling", "error handling"]
+    }
+  },
+  "examples": {
+    "simpleCounter": {
+      "path": "./examples/simple-counter/",
+      "type": "BaseWidget",
+      "complexity": "beginner",
+      "demonstrates": ["state management", "user interaction", "keyboard handling"],
+      "keyLearnings": ["Basic widget lifecycle", "Event handling", "Configuration validation"]
+    },
+    "systemMonitor": {
+      "path": "./examples/system-monitor/",
+      "type": "DataWidget",
+      "complexity": "intermediate",
+      "demonstrates": ["data fetching", "error handling", "performance optimization"],
+      "keyLearnings": ["DataWidget patterns", "System API integration", "Caching strategies"]
+    }
+  },
+  "development": {
+    "workflow": {
+      "1": "Generate plugin scaffold: orbiton plugin create my-plugin",
+      "2": "Implement plugin logic in index.js",
+      "3": "Define configuration schema in plugin.json",
+      "4": "Write tests in test.js",
+      "5": "Test with: orbiton plugin test my-plugin",
+      "6": "Develop with hot reload: orbiton dev --plugin my-plugin"
+    },
+    "testing": {
+      "framework": "vitest",
+      "patterns": ["unit tests", "integration tests", "performance tests"],
+      "utilities": "PluginTestHarness for isolated testing",
+      "coverage": "Aim for >80% code coverage"
+    },
+    "debugging": {
+      "devMode": "orbiton --dev for hot reloading",
+      "debugMode": "orbiton --debug for verbose logging",
+      "testing": "orbiton plugin test for isolated testing",
+      "validation": "orbiton config validate for configuration issues"
+    }
+  },
+  "apis": {
+    "baseWidget": {
+      "lifecycle": ["initialize", "render", "update", "destroy"],
+      "utilities": ["setPosition", "applyTheme", "handleError", "getTheme"],
+      "configuration": ["getOptionsSchema", "validateOptions"],
+      "events": ["on", "off", "emit"]
+    },
+    "dataWidget": {
+      "extends": "BaseWidget",
+      "dataHandling": ["fetchData", "startUpdates", "stopUpdates"],
+      "caching": ["pauseUpdates", "resumeUpdates"],
+      "properties": ["data", "lastUpdate", "updateInterval", "hasError"]
+    },
+    "blessed": {
+      "elements": ["box", "text", "list", "table", "progressbar"],
+      "styling": ["colors", "borders", "alignment", "formatting"],
+      "events": ["keypress", "click", "focus", "blur"],
+      "formatting": ["{bold}", "{center}", "{red-fg}", "{/red-fg}"]
+    }
+  },
+  "bestPractices": {
+    "performance": {
+      "updateIntervals": "Use appropriate intervals (5s+ for most widgets)",
+      "caching": "Cache expensive operations and API responses",
+      "memoryManagement": "Clean up resources in destroy() method",
+      "rendering": "Keep render() method fast and efficient"
+    },
+    "errorHandling": {
+      "gracefulDegradation": "Show error state instead of crashing",
+      "userFeedback": "Provide helpful error messages",
+      "logging": "Log errors for debugging but don't expose internals",
+      "recovery": "Implement retry logic for transient failures"
+    },
+    "configuration": {
+      "validation": "Always validate configuration with JSON Schema",
+      "defaults": "Provide sensible defaults for all options",
+      "documentation": "Document all configuration options clearly",
+      "examples": "Include configuration examples in plugin.json"
+    },
+    "testing": {
+      "coverage": "Test all public methods and error conditions",
+      "isolation": "Use PluginTestHarness for isolated testing",
+      "mocking": "Mock external dependencies and APIs",
+      "performance": "Include performance tests for critical paths"
+    }
+  },
+  "commonPatterns": {
+    "dataFetching": {
+      "pattern": "async fetchData() with error handling",
+      "errorHandling": "try-catch with fallback to cached data",
+      "timeout": "Use AbortSignal.timeout() for network requests",
+      "retries": "Implement exponential backoff for retries"
+    },
+    "stateManagement": {
+      "initialization": "Set up state in initialize() method",
+      "updates": "Update state in response to data or user input",
+      "persistence": "Save important state to configuration if needed",
+      "cleanup": "Clear state in destroy() method"
+    },
+    "userInteraction": {
+      "keyboardHandling": "Use this.on('keypress', handler) for keyboard input",
+      "mouseHandling": "Use this.on('click', handler) for mouse input",
+      "focusManagement": "Handle focus/blur events appropriately",
+      "feedback": "Provide visual feedback for user actions"
+    },
+    "theming": {
+      "colorUsage": "Use theme colors: this.getTheme().primary",
+      "styling": "Apply consistent styling across widgets",
+      "customization": "Allow theme overrides in widget options",
+      "accessibility": "Ensure good contrast and readability"
+    }
+  },
+  "troubleshooting": {
+    "pluginNotLoading": {
+      "checkList": ["plugin.json syntax", "main export", "name matching directory"],
+      "debugging": "Use orbiton --debug to see loading errors",
+      "validation": "Run orbiton config validate"
+    },
+    "configurationErrors": {
+      "validation": "Check optionsSchema in plugin.json",
+      "requiredFields": "Ensure all required options are provided",
+      "typeErrors": "Verify option types match schema",
+      "debugging": "Use orbiton config validate for detailed errors"
+    },
+    "performanceIssues": {
+      "profiling": "Use orbiton --debug --performance",
+      "intervals": "Check update intervals aren't too frequent",
+      "caching": "Implement caching for expensive operations",
+      "memoryLeaks": "Ensure proper cleanup in destroy()"
+    },
+    "renderingIssues": {
+      "blessedTags": "Check blessed.js tag syntax",
+      "terminalSupport": "Test in different terminals",
+      "sizing": "Ensure content fits widget dimensions",
+      "themes": "Test with different theme configurations"
+    }
+  },
+  "aiAssistance": {
+    "codeGeneration": {
+      "useTemplates": "Start with appropriate template from ./templates/",
+      "followPatterns": "Use established patterns from ./examples/",
+      "validateSchema": "Always include proper optionsSchema",
+      "includeTests": "Generate comprehensive test suite"
+    },
+    "debugging": {
+      "checkCommonIssues": "Reference troubleshooting section",
+      "validateConfiguration": "Ensure configuration matches schema",
+      "testInIsolation": "Use PluginTestHarness for testing",
+      "checkDocumentation": "Reference API documentation in ./docs/"
+    },
+    "optimization": {
+      "performancePatterns": "Follow performance best practices",
+      "caching": "Implement appropriate caching strategies",
+      "errorHandling": "Add comprehensive error handling",
+      "testing": "Include performance and error condition tests"
+    }
+  },
+  "resources": {
+    "documentation": {
+      "pluginDevelopment": "./docs/plugin-development.md",
+      "apiReference": "./docs/api-reference.md",
+      "troubleshooting": "./docs/troubleshooting.md",
+      "userGuide": "./docs/user-guide.md"
+    },
+    "examples": {
+      "basicWidget": "./examples/simple-counter/",
+      "dataWidget": "./examples/system-monitor/",
+      "templates": "./templates/",
+      "tests": "./examples/*/test.js"
+    },
+    "types": {
+      "main": "./types/index.d.ts",
+      "plugins": "./types/plugins.d.ts"
+    },
+    "schemas": {
+      "config": "./lib/schemas/config.json",
+      "plugin": "./lib/schemas/plugin.json"
+    }
+  }
+}

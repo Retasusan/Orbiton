@@ -1,0 +1,334 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Orbiton Plugin Scaffolding Configuration",
+  "description": "Configuration for AI-assisted plugin scaffolding and code generation",
+  "type": "object",
+  "scaffolding": {
+    "templates": {
+      "basic": {
+        "file": "basic-widget.js",
+        "description": "Simple widget for static or user-driven content",
+        "baseClass": "BaseWidget",
+        "useCase": [
+          "Static information displays",
+          "Simple interactive widgets",
+          "Widgets that update only on user interaction",
+          "Clocks, counters, calculators"
+        ],
+        "requiredMethods": ["initialize", "render"],
+        "optionalMethods": ["update", "destroy", "handleKeyPress"],
+        "variables": {
+          "{{name}}": {
+            "description": "Plugin name in kebab-case",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "examples": ["my-plugin", "system-clock", "simple-counter"]
+          },
+          "{{className}}": {
+            "description": "Class name in PascalCase",
+            "pattern": "^[A-Z][a-zA-Z0-9]*$",
+            "examples": ["MyPlugin", "SystemClock", "SimpleCounter"]
+          }
+        }
+      },
+      "data": {
+        "file": "data-widget.js",
+        "description": "Widget that fetches and displays dynamic data",
+        "baseClass": "DataWidget",
+        "useCase": [
+          "API data displays",
+          "System monitoring widgets",
+          "Real-time information displays",
+          "Periodic data updates"
+        ],
+        "requiredMethods": ["initialize", "fetchData", "render"],
+        "optionalMethods": ["update", "destroy", "handleError"],
+        "variables": {
+          "{{name}}": {
+            "description": "Plugin name in kebab-case",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "examples": ["weather-widget", "api-monitor", "system-stats"]
+          },
+          "{{className}}": {
+            "description": "Class name in PascalCase",
+            "pattern": "^[A-Z][a-zA-Z0-9]*$",
+            "examples": ["WeatherWidget", "ApiMonitor", "SystemStats"]
+          }
+        }
+      },
+      "advanced": {
+        "file": "advanced-widget.js",
+        "description": "Complex interactive widget with advanced features",
+        "baseClass": "DataWidget",
+        "useCase": [
+          "Interactive dashboards",
+          "Complex data visualizations",
+          "Multi-view displays",
+          "Plugin-to-plugin communication"
+        ],
+        "requiredMethods": ["initialize", "fetchData", "render"],
+        "optionalMethods": ["handleKeyPress", "handleClick", "setupInteractivity"],
+        "variables": {
+          "{{name}}": {
+            "description": "Plugin name in kebab-case",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "examples": ["interactive-chart", "dashboard-manager", "data-explorer"]
+          },
+          "{{className}}": {
+            "description": "Class name in PascalCase",
+            "pattern": "^[A-Z][a-zA-Z0-9]*$",
+            "examples": ["InteractiveChart", "DashboardManager", "DataExplorer"]
+          }
+        }
+      }
+    },
+    "metadata": {
+      "file": "plugin.json",
+      "description": "Plugin metadata and configuration schema",
+      "required": ["name", "version", "description", "optionsSchema"],
+      "variables": {
+        "{{name}}": {
+          "description": "Plugin name matching directory",
+          "source": "user-input"
+        },
+        "{{description}}": {
+          "description": "Brief plugin description",
+          "source": "user-input"
+        },
+        "{{author}}": {
+          "description": "Plugin author",
+          "source": "user-input",
+          "default": "Plugin Developer"
+        },
+        "{{category}}": {
+          "description": "Plugin category",
+          "enum": ["system", "development", "monitoring", "utility", "custom"],
+          "default": "utility"
+        },
+        "{{size}}": {
+          "description": "Plugin size hint",
+          "enum": ["small", "medium", "large"],
+          "default": "medium"
+        },
+        "{{updateInterval}}": {
+          "description": "Default update interval",
+          "type": "number",
+          "default": 5000
+        },
+        "{{baseClass}}": {
+          "description": "Base class used",
+          "enum": ["BaseWidget", "DataWidget"],
+          "source": "template-type"
+        },
+        "{{dataSource}}": {
+          "description": "Type of data source",
+          "examples": ["api", "system", "file", "user-input", "static"],
+          "source": "inferred"
+        },
+        "{{updatePattern}}": {
+          "description": "Update pattern",
+          "examples": ["interval-based", "event-driven", "manual", "on-demand"],
+          "source": "inferred"
+        }
+      }
+    },
+    "tests": {
+      "file": "plugin-test.js",
+      "description": "Comprehensive test suite",
+      "framework": "vitest",
+      "testTypes": [
+        "initialization",
+        "rendering",
+        "data-handling",
+        "error-handling",
+        "performance",
+        "integration"
+      ],
+      "variables": {
+        "{{name}}": {
+          "description": "Plugin name for test descriptions",
+          "source": "user-input"
+        },
+        "{{className}}": {
+          "description": "Class name for imports and instantiation",
+          "source": "derived"
+        }
+      }
+    }
+  },
+  "generation": {
+    "workflow": [
+      {
+        "step": 1,
+        "action": "determine-template",
+        "description": "Choose appropriate template based on plugin requirements",
+        "decision": {
+          "static-display": "basic",
+          "data-fetching": "data",
+          "complex-interaction": "advanced"
+        }
+      },
+      {
+        "step": 2,
+        "action": "collect-variables",
+        "description": "Gather all template variables from user input or inference",
+        "required": ["name", "description"],
+        "optional": ["author", "category", "size"]
+      },
+      {
+        "step": 3,
+        "action": "process-templates",
+        "description": "Replace variables in all template files",
+        "files": ["index.js", "plugin.json", "test.js", "default.json"]
+      },
+      {
+        "step": 4,
+        "action": "create-structure",
+        "description": "Create plugin directory structure",
+        "structure": {
+          "plugins/{{name}}/": "Plugin directory",
+          "plugins/{{name}}/index.js": "Main plugin file",
+          "plugins/{{name}}/plugin.json": "Plugin metadata",
+          "plugins/{{name}}/test.js": "Test suite",
+          "plugins/{{name}}/default.json": "Default configuration",
+          "plugins/{{name}}/README.md": "Plugin documentation"
+        }
+      },
+      {
+        "step": 5,
+        "action": "validate-output",
+        "description": "Validate generated files",
+        "checks": [
+          "JavaScript syntax validation",
+          "JSON schema validation",
+          "Template variable replacement",
+          "File structure completeness"
+        ]
+      }
+    ]
+  },
+  "ai-assistance": {
+    "codeGeneration": {
+      "patterns": {
+        "errorHandling": {
+          "description": "Consistent error handling pattern",
+          "template": "try { /* operation */ } catch (error) { this.handleError(error); }"
+        },
+        "asyncMethods": {
+          "description": "Async method pattern",
+          "template": "async methodName() { try { /* async operation */ } catch (error) { /* handle error */ } }"
+        },
+        "configValidation": {
+          "description": "Configuration validation pattern",
+          "template": "getOptionsSchema() { return { type: 'object', properties: { /* schema */ } }; }"
+        }
+      },
+      "bestPractices": [
+        "Always include error handling in async methods",
+        "Validate configuration options with JSON Schema",
+        "Use consistent naming conventions",
+        "Include comprehensive JSDoc comments",
+        "Implement proper cleanup in destroy() method"
+      ]
+    },
+    "customization": {
+      "common": {
+        "apiIntegration": {
+          "description": "Add API integration to data widget",
+          "modifications": [
+            "Add API URL and key to options schema",
+            "Implement fetchData() with proper error handling",
+            "Add request timeout and retry logic",
+            "Include caching for API responses"
+          ]
+        },
+        "userInteraction": {
+          "description": "Add keyboard/mouse interaction",
+          "modifications": [
+            "Add event listeners in initialize()",
+            "Implement key/mouse handlers",
+            "Update render() to show interactive elements",
+            "Add focus management"
+          ]
+        },
+        "theming": {
+          "description": "Add custom theme support",
+          "modifications": [
+            "Use this.getTheme() for colors",
+            "Add theme options to schema",
+            "Implement applyTheme() override",
+            "Support theme inheritance"
+          ]
+        }
+      }
+    },
+    "troubleshooting": {
+      "common-issues": {
+        "template-variables": {
+          "problem": "Template variables not replaced",
+          "solution": "Ensure all {{variable}} placeholders are replaced with actual values"
+        },
+        "import-paths": {
+          "problem": "Import paths incorrect",
+          "solution": "Use relative paths: '../src/plugins/BaseWidget.js'"
+        },
+        "schema-validation": {
+          "problem": "Configuration schema errors",
+          "solution": "Validate schema syntax and ensure all required properties are defined"
+        },
+        "class-naming": {
+          "problem": "Class name doesn't match export",
+          "solution": "Ensure class name matches and uses 'export default'"
+        }
+      }
+    }
+  },
+  "validation": {
+    "templates": {
+      "syntax": "All templates must be valid JavaScript",
+      "variables": "All {{variable}} placeholders must be documented",
+      "structure": "Templates must follow established patterns",
+      "documentation": "All methods must have JSDoc comments"
+    },
+    "generated": {
+      "javascript": "Generated code must pass ESLint validation",
+      "json": "Generated JSON must be valid and match schemas",
+      "completeness": "All required files must be generated",
+      "functionality": "Generated plugins must be testable"
+    }
+  },
+  "examples": {
+    "basic-plugin": {
+      "name": "simple-counter",
+      "template": "basic",
+      "variables": {
+        "name": "simple-counter",
+        "className": "SimpleCounter",
+        "description": "A simple interactive counter widget",
+        "author": "Plugin Developer",
+        "category": "utility"
+      }
+    },
+    "data-plugin": {
+      "name": "weather-widget",
+      "template": "data",
+      "variables": {
+        "name": "weather-widget",
+        "className": "WeatherWidget",
+        "description": "Display current weather conditions",
+        "author": "Weather Team",
+        "category": "utility"
+      }
+    },
+    "advanced-plugin": {
+      "name": "system-dashboard",
+      "template": "advanced",
+      "variables": {
+        "name": "system-dashboard",
+        "className": "SystemDashboard",
+        "description": "Interactive system monitoring dashboard",
+        "author": "System Team",
+        "category": "monitoring"
+      }
+    }
+  }
+}

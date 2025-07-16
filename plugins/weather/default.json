@@ -1,0 +1,9 @@
+{
+  "weather": {
+    "location": "Tokyo,JP",
+    "units": "metric",
+    "updateInterval": 600000,
+    "showForecast": true,
+    "forecastHours": 8
+  }
+}

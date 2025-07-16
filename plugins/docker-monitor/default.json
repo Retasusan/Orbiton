@@ -1,5 +1,8 @@
 {
   "docker-monitor": {
-    "updateInterval": 5000
+    "updateInterval": 5000,
+    "showPorts": true,
+    "showCreatedAt": true,
+    "maxContainers": 20
   }
 }

@@ -1,0 +1,123 @@
+{
+  "name": "system-monitor",
+  "version": "1.0.0",
+  "description": "Advanced system monitoring widget showing CPU, memory, load, and network information",
+  "author": "Orbiton Team",
+  "license": "MIT",
+  "keywords": [
+    "orbiton",
+    "dashboard",
+    "widget",
+    "system",
+    "monitor",
+    "cpu",
+    "memory",
+    "performance"
+  ],
+  "category": "monitoring",
+  "size": "medium",
+  "updateInterval": 2000,
+  "main": "index.js",
+  "dependencies": [],
+  "peerDependencies": [],
+  "systemRequirements": {
+    "platform": ["linux", "darwin", "win32"],
+    "commands": []
+  },
+  "optionsSchema": {
+    "type": "object",
+    "properties": {
+      "updateInterval": {
+        "type": "number",
+        "description": "Update interval in milliseconds",
+        "minimum": 1000,
+        "default": 2000
+      },
+      "showDetails": {
+        "type": "boolean",
+        "description": "Show detailed system information",
+        "default": true
+      },
+      "cpuAlert": {
+        "type": "number",
+        "description": "CPU usage alert threshold (%)",
+        "minimum": 50,
+        "maximum": 100,
+        "default": 80
+      },
+      "memoryAlert": {
+        "type": "number",
+        "description": "Memory usage alert threshold (%)",
+        "minimum": 50,
+        "maximum": 100,
+        "default": 85
+      },
+      "loadAlert": {
+        "type": "number",
+        "description": "Load average alert threshold",
+        "minimum": 1.0,
+        "default": 2.0
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Basic System Monitor",
+      "description": "Standard system monitoring with default settings",
+      "config": {
+        "name": "system-monitor",
+        "position": [0, 0, 4, 3],
+        "options": {
+          "updateInterval": 2000,
+          "showDetails": true
+        }
+      }
+    },
+    {
+      "name": "Minimal System Monitor",
+      "description": "Compact view without detailed information",
+      "config": {
+        "name": "system-monitor",
+        "position": [0, 0, 3, 2],
+        "options": {
+          "updateInterval": 5000,
+          "showDetails": false,
+          "cpuAlert": 90,
+          "memoryAlert": 90
+        }
+      }
+    },
+    {
+      "name": "High-Frequency Monitor",
+      "description": "Fast updates for real-time monitoring",
+      "config": {
+        "name": "system-monitor",
+        "position": [0, 0, 4, 3],
+        "options": {
+          "updateInterval": 1000,
+          "showDetails": true,
+          "cpuAlert": 70,
+          "memoryAlert": 75,
+          "loadAlert": 1.5
+        }
+      }
+    }
+  ],
+  "ai": {
+    "patterns": {
+      "baseClass": "DataWidget",
+      "dataSource": "system-api",
+      "updatePattern": "interval-based"
+    },
+    "examples": [
+      {
+        "scenario": "System monitoring with automatic updates",
+        "code": "// Demonstrates DataWidget with system APIs and error handling"
+      },
+      {
+        "scenario": "Performance optimization with history tracking",
+        "code": "// Shows data caching and trend analysis patterns"
+      }
+    ]
+  }
+}

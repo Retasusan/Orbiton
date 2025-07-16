@@ -1,7 +1,10 @@
 {
-  "label": "GitHub Status",
-  "updateInterval": 300000,
-  "showDescription": true,
-  "showIndicator": true,
-  "credentials": null
+  "github-status": {
+    "updateInterval": 300000,
+    "showEvents": true,
+    "showPullRequests": true,
+    "maxEvents": 5,
+    "maxPullRequests": 10,
+    "maxRepos": 5
+  }
 }

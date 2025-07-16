@@ -1,0 +1,92 @@
+{
+  "name": "simple-counter",
+  "version": "1.0.0",
+  "description": "A simple interactive counter widget for learning Orbiton plugin development",
+  "author": "Orbiton Team",
+  "license": "MIT",
+  "keywords": [
+    "orbiton",
+    "dashboard",
+    "widget",
+    "counter",
+    "example",
+    "interactive"
+  ],
+  "category": "utility",
+  "size": "small",
+  "updateInterval": 0,
+  "main": "index.js",
+  "dependencies": [],
+  "peerDependencies": [],
+  "systemRequirements": {
+    "platform": [],
+    "commands": []
+  },
+  "optionsSchema": {
+    "type": "object",
+    "properties": {
+      "startValue": {
+        "type": "number",
+        "description": "Initial counter value",
+        "default": 0
+      },
+      "step": {
+        "type": "number",
+        "description": "Increment/decrement step size",
+        "default": 1,
+        "minimum": 1
+      },
+      "maxValue": {
+        "type": "number",
+        "description": "Maximum allowed value",
+        "default": 999
+      },
+      "minValue": {
+        "type": "number",
+        "description": "Minimum allowed value",
+        "default": -999
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Basic Counter",
+      "description": "Simple counter starting at zero",
+      "config": {
+        "name": "simple-counter",
+        "position": [0, 0, 2, 2],
+        "options": {
+          "startValue": 0,
+          "step": 1
+        }
+      }
+    },
+    {
+      "name": "Custom Range Counter",
+      "description": "Counter with custom range and step",
+      "config": {
+        "name": "simple-counter",
+        "position": [0, 0, 2, 2],
+        "options": {
+          "startValue": 50,
+          "step": 5,
+          "minValue": 0,
+          "maxValue": 100
+        }
+      }
+    }
+  ],
+  "ai": {
+    "patterns": {
+      "baseClass": "BaseWidget",
+      "dataSource": "user-interaction",
+      "updatePattern": "event-driven"
+    },
+    "examples": [
+      {
+        "scenario": "Interactive widget with state management",
+        "code": "// Demonstrates keyboard handling and state updates"
+      }
+    ]
+  }
+}

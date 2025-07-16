@@ -1,19 +1,76 @@
 {
   "name": "clock",
-  "version": "0.1.0",
-  "description": "Clock widget plugin showing current time",
-  "author": "Retasusan",
+  "version": "2.0.0",
+  "description": "Clock widget plugin showing current time with system metrics",
+  "author": "Orbiton Team",
   "license": "MIT",
+  "keywords": ["time", "clock", "system", "metrics", "cpu", "memory", "battery"],
+  "category": "system",
+  "size": "large",
+  "updateInterval": 1000,
+  "dependencies": ["blessed", "cfonts", "blessed-contrib", "battery-level"],
   "optionsSchema": {
     "type": "object",
     "properties": {
+      "title": {
+        "type": "string",
+        "description": "Widget title",
+        "default": "Clock"
+      },
+      "font": {
+        "type": "string",
+        "description": "Font style for time display",
+        "default": "block"
+      },
+      "colors": {
+        "type": "array",
+        "description": "Colors for time display",
+        "items": { "type": "string" },
+        "default": ["green", "cyan", "red"]
+      },
+      "updateInterval": {
+        "type": "number",
+        "description": "Time update interval in milliseconds",
+        "minimum": 100,
+        "default": 1000
+      },
+      "timeZone": {
+        "type": "string",
+        "description": "Timezone for time display",
+        "default": "auto"
+      },
       "format": {
         "type": "string",
         "enum": ["12h", "24h"],
         "description": "Time format, 12-hour or 24-hour",
         "default": "24h"
+      },
+      "showMetrics": {
+        "type": "boolean",
+        "description": "Whether to show system metrics",
+        "default": true
       }
     },
     "required": []
-  }
+  },
+  "examples": [
+    {
+      "name": "Default Clock",
+      "description": "Standard clock with system metrics",
+      "config": {
+        "name": "Default Clock",
+        "format": "24h",
+        "showMetrics": true
+      }
+    },
+    {
+      "name": "Simple 12-hour Clock",
+      "description": "12-hour format without metrics",
+      "config": {
+        "name": "Simple 12-hour Clock",
+        "format": "12h",
+        "showMetrics": false
+      }
+    }
+  ]
 }

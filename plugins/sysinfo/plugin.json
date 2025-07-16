@@ -1,12 +1,60 @@
 {
   "name": "sysinfo",
-  "version": "0.1.0",
-  "description": "System info widget showing CPU load and memory usage",
-  "author": "Retasusan",
+  "version": "1.0.0",
+  "description": "Comprehensive system information widget displaying CPU usage, memory usage, disk usage, and top processes",
+  "author": "Orbiton Team",
   "license": "MIT",
+  "type": "widget",
+  "keywords": ["system", "info", "cpu", "memory", "disk", "processes"],
+  "category": "system",
+  "size": "medium",
+  "updateInterval": 5000,
+  "dependencies": ["blessed", "blessed-contrib", "ps-list"],
   "optionsSchema": {
     "type": "object",
-    "properties": {},
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "Widget title",
+        "default": "System Info"
+      },
+      "updateInterval": {
+        "type": "number",
+        "description": "Update interval in milliseconds",
+        "minimum": 1000,
+        "maximum": 60000,
+        "default": 5000
+      },
+      "topProcessesCount": {
+        "type": "number",
+        "description": "Number of top processes to show",
+        "minimum": 1,
+        "maximum": 20,
+        "default": 5
+      },
+      "showDiskUsage": {
+        "type": "boolean",
+        "description": "Show disk usage information",
+        "default": true
+      },
+      "showProcesses": {
+        "type": "boolean",
+        "description": "Show top processes",
+        "default": true
+      }
+    },
     "required": []
-  }
+  },
+  "examples": [
+    {
+      "name": "Default System Info",
+      "description": "Standard system information display",
+      "config": {
+        "name": "Default System Info",
+        "updateInterval": 5000,
+        "showDiskUsage": true,
+        "showProcesses": true
+      }
+    }
+  ]
 }

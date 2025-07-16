@@ -1,0 +1,511 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://orbiton.dev/schemas/plugin.json",
+  "title": "Orbiton Plugin Metadata",
+  "description": "Schema for plugin.json files that define Orbiton plugin metadata and configuration",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Plugin name (must match directory name)",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "examples": ["clock", "system-monitor", "weather-widget"],
+      "ai": {
+        "description": "Plugin name should be kebab-case and match the directory name",
+        "validation": "Must start with lowercase letter, contain only lowercase letters, numbers, and hyphens"
+      }
+    },
+    "version": {
+      "type": "string",
+      "description": "Plugin version (semantic versioning)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9-]+)?$",
+      "examples": ["1.0.0", "2.1.3", "1.0.0-beta.1"],
+      "ai": {
+        "description": "Follow semantic versioning: MAJOR.MINOR.PATCH"
+      }
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the plugin does",
+      "minLength": 10,
+      "maxLength": 200,
+      "examples": [
+        "Display current time and date with customizable formats",
+        "Monitor system resources including CPU, memory, and disk usage"
+      ]
+    },
+    "author": {
+      "type": "string",
+      "description": "Plugin author name or organization",
+      "examples": ["John Doe", "Acme Corp", "john@example.com"]
+    },
+    "license": {
+      "type": "string",
+      "description": "Plugin license",
+      "examples": ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause"],
+      "default": "MIT"
+    },
+    "keywords": {
+      "type": "array",
+      "description": "Keywords for plugin discovery",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "minItems": 1,
+      "maxItems": 10,
+      "examples": [
+        ["time", "clock", "date"],
+        ["system", "monitor", "cpu", "memory"],
+        ["weather", "forecast", "temperature"]
+      ],
+      "ai": {
+        "description": "Keywords help users discover your plugin. Include relevant terms for functionality and use cases"
+      }
+    },
+    "category": {
+      "type": "string",
+      "description": "Plugin category for organization",
+      "enum": ["system", "development", "monitoring", "utility", "custom"],
+      "examples": ["system", "monitoring", "utility"],
+      "ai": {
+        "description": "Categories help organize plugins in listings and suggestions",
+        "categories": {
+          "system": "System information and control",
+          "development": "Development tools and integrations",
+          "monitoring": "Monitoring and alerting",
+          "utility": "General utilities and tools",
+          "custom": "Custom or specialized functionality"
+        }
+      }
+    },
+    "size": {
+      "type": "string",
+      "description": "Hint about plugin's typical display size",
+      "enum": ["small", "medium", "large"],
+      "default": "medium",
+      "ai": {
+        "description": "Size hint helps with automatic layout generation",
+        "sizes": {
+          "small": "1x1 or 1x2 grid cells (clocks, simple indicators)",
+          "medium": "2x2 or 2x3 grid cells (system monitors, status displays)",
+          "large": "3x3 or larger (complex dashboards, detailed views)"
+        }
+      }
+    },
+    "updateInterval": {
+      "type": "integer",
+      "description": "Default update interval in milliseconds",
+      "minimum": 1000,
+      "maximum": 300000,
+      "default": 5000,
+      "examples": [1000, 5000, 30000, 60000],
+      "ai": {
+        "description": "How often the plugin should refresh its data by default",
+        "recommendations": {
+          "realtime": 1000,
+          "frequent": 5000,
+          "moderate": 30000,
+          "slow": 60000
+        }
+      }
+    },
+    "main": {
+      "type": "string",
+      "description": "Main entry point file",
+      "default": "index.js",
+      "examples": ["index.js", "main.js", "plugin.js"]
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "NPM dependencies required by this plugin",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["axios", "moment"], ["node-fetch"]]
+    },
+    "peerDependencies": {
+      "type": "array",
+      "description": "Peer dependencies (should be provided by host)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "systemRequirements": {
+      "type": "object",
+      "description": "System requirements for this plugin",
+      "properties": {
+        "platform": {
+          "type": "array",
+          "description": "Supported platforms",
+          "items": {
+            "type": "string",
+            "enum": ["linux", "darwin", "win32", "freebsd"]
+          },
+          "examples": [["linux", "darwin"], ["win32"]]
+        },
+        "commands": {
+          "type": "array",
+          "description": "Required system commands",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["docker", "docker-compose"], ["git"], ["python3"]]
+        },
+        "nodeVersion": {
+          "type": "string",
+          "description": "Minimum Node.js version",
+          "pattern": "^>=?\\d+(\\.\\d+)?(\\.\\d+)?$",
+          "examples": [">=16.0.0", "18"]
+        },
+        "env": {
+          "type": "array",
+          "description": "Required environment variables",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["DOCKER_HOST"], ["API_KEY", "API_SECRET"]]
+        }
+      },
+      "additionalProperties": false
+    },
+    "optionsSchema": {
+      "type": "object",
+      "description": "JSON Schema for plugin configuration options",
+      "$ref": "http://json-schema.org/draft-07/schema#",
+      "ai": {
+        "description": "Define the configuration options your plugin accepts",
+        "example": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Widget title",
+              "default": "My Plugin"
+            },
+            "apiKey": {
+              "type": "string",
+              "description": "API key for external service"
+            }
+          },
+          "required": ["apiKey"]
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "description": "Configuration examples for users",
+      "items": {
+        "$ref": "#/definitions/pluginExample"
+      },
+      "ai": {
+        "description": "Provide multiple examples showing different ways to configure your plugin"
+      }
+    },
+    "ai": {
+      "type": "object",
+      "description": "AI-specific metadata for code generation and assistance",
+      "properties": {
+        "patterns": {
+          "type": "object",
+          "description": "Development patterns used by this plugin",
+          "properties": {
+            "baseClass": {
+              "type": "string",
+              "description": "Base class used (BaseWidget or DataWidget)",
+              "enum": ["BaseWidget", "DataWidget"],
+              "examples": ["BaseWidget", "DataWidget"]
+            },
+            "dataSource": {
+              "type": "string",
+              "description": "Type of data source",
+              "examples": ["api", "system", "file", "user-input", "static"]
+            },
+            "updatePattern": {
+              "type": "string",
+              "description": "How the plugin updates",
+              "examples": ["interval-based", "event-driven", "manual", "on-demand"]
+            },
+            "methods": {
+              "type": "array",
+              "description": "Key methods implemented",
+              "items": { "type": "string" },
+              "examples": [["initialize", "render", "fetchData"], ["handleKeyPress", "onFocus"]]
+            }
+          },
+          "additionalProperties": false
+        },
+        "examples": {
+          "type": "array",
+          "description": "Code examples for AI assistance",
+          "items": {
+            "$ref": "#/definitions/aiExample"
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "description": "Common usage scenarios",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            "Display real-time system metrics",
+            "Show weather information with periodic updates",
+            "Interactive file browser with keyboard navigation"
+          ]
+        },
+        "configurations": {
+          "type": "array",
+          "description": "Common configuration patterns",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["name", "version", "description", "optionsSchema"],
+  "additionalProperties": false,
+  "definitions": {
+    "pluginExample": {
+      "type": "object",
+      "description": "Configuration example for the plugin",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Example name",
+          "examples": ["Basic Usage", "Advanced Configuration", "Minimal Setup"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Example description",
+          "examples": [
+            "Simple clock with default settings",
+            "System monitor with custom thresholds",
+            "Weather widget with API key"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "description": "Example configuration",
+          "properties": {
+            "name": { "type": "string" },
+            "position": {
+              "type": "array",
+              "items": { "type": "integer" },
+              "minItems": 4,
+              "maxItems": 4
+            },
+            "options": { "type": "object" }
+          },
+          "required": ["name"],
+          "additionalProperties": false
+        },
+        "screenshot": {
+          "type": "string",
+          "description": "Path to screenshot image (optional)"
+        }
+      },
+      "required": ["name", "description", "config"],
+      "additionalProperties": false
+    },
+    "aiExample": {
+      "type": "object",
+      "description": "Code example for AI assistance",
+      "properties": {
+        "scenario": {
+          "type": "string",
+          "description": "What this example demonstrates",
+          "examples": [
+            "Basic widget implementation",
+            "Data fetching with error handling",
+            "Interactive widget with keyboard input"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "description": "Example code snippet"
+        },
+        "explanation": {
+          "type": "string",
+          "description": "Explanation of the code"
+        }
+      },
+      "required": ["scenario", "code"],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "name": "clock",
+      "version": "1.0.0",
+      "description": "Display current time and date with customizable formats",
+      "author": "Orbiton Team",
+      "license": "MIT",
+      "keywords": ["time", "clock", "date"],
+      "category": "utility",
+      "size": "small",
+      "updateInterval": 1000,
+      "optionsSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": ["12h", "24h"],
+            "description": "Time format",
+            "default": "24h"
+          },
+          "showDate": {
+            "type": "boolean",
+            "description": "Show date below time",
+            "default": true
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone (IANA format)",
+            "default": "local"
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "Basic Clock",
+          "description": "Simple clock with default settings",
+          "config": {
+            "name": "clock",
+            "position": [0, 0, 1, 1]
+          }
+        },
+        {
+          "name": "Custom Format",
+          "description": "12-hour format with timezone",
+          "config": {
+            "name": "clock",
+            "position": [0, 0, 1, 1],
+            "options": {
+              "format": "12h",
+              "timezone": "America/New_York"
+            }
+          }
+        }
+      ],
+      "ai": {
+        "patterns": {
+          "baseClass": "BaseWidget",
+          "dataSource": "system",
+          "updatePattern": "interval-based"
+        },
+        "scenarios": [
+          "Display current time in dashboard",
+          "Show multiple timezones",
+          "Simple status indicator"
+        ]
+      }
+    },
+    {
+      "name": "weather",
+      "version": "1.2.0",
+      "description": "Display current weather conditions and forecast",
+      "author": "Weather Plugin Team",
+      "license": "MIT",
+      "keywords": ["weather", "forecast", "temperature", "api"],
+      "category": "utility",
+      "size": "medium",
+      "updateInterval": 600000,
+      "dependencies": ["node-fetch"],
+      "systemRequirements": {
+        "commands": ["curl"]
+      },
+      "optionsSchema": {
+        "type": "object",
+        "required": ["apiKey"],
+        "properties": {
+          "apiKey": {
+            "type": "string",
+            "description": "OpenWeatherMap API key",
+            "minLength": 10
+          },
+          "city": {
+            "type": "string",
+            "description": "City name",
+            "default": "London"
+          },
+          "units": {
+            "type": "string",
+            "enum": ["metric", "imperial", "kelvin"],
+            "description": "Temperature units",
+            "default": "metric"
+          },
+          "showForecast": {
+            "type": "boolean",
+            "description": "Show 3-day forecast",
+            "default": false
+          }
+        }
+      },
+      "examples": [
+        {
+          "name": "Basic Weather",
+          "description": "Current weather for default city",
+          "config": {
+            "name": "weather",
+            "position": [0, 2, 2, 2],
+            "options": {
+              "apiKey": "your-api-key-here"
+            }
+          }
+        },
+        {
+          "name": "Custom Location",
+          "description": "Weather for specific city with forecast",
+          "config": {
+            "name": "weather",
+            "position": [0, 2, 3, 2],
+            "options": {
+              "apiKey": "your-api-key-here",
+              "city": "New York",
+              "units": "imperial",
+              "showForecast": true
+            }
+          }
+        }
+      ],
+      "ai": {
+        "patterns": {
+          "baseClass": "DataWidget",
+          "dataSource": "api",
+          "updatePattern": "interval-based",
+          "methods": ["fetchData", "render", "handleError"]
+        },
+        "examples": [
+          {
+            "scenario": "API data fetching with error handling",
+            "code": "async fetchData() {\n  try {\n    const response = await fetch(`${this.apiUrl}?key=${this.apiKey}`);\n    return await response.json();\n  } catch (error) {\n    this.handleError(error);\n    return null;\n  }\n}",
+            "explanation": "Fetch weather data from API with proper error handling"
+          }
+        ],
+        "scenarios": [
+          "Display current weather conditions",
+          "Show weather forecast",
+          "Monitor weather alerts"
+        ]
+      }
+    }
+  ],
+  "ai": {
+    "description": "This schema defines the metadata format for Orbiton plugins",
+    "usage": {
+      "validation": "Validate plugin.json files during development",
+      "generation": "Generate plugin metadata templates",
+      "documentation": "Auto-generate plugin documentation"
+    },
+    "bestPractices": {
+      "naming": "Use kebab-case for plugin names",
+      "versioning": "Follow semantic versioning",
+      "examples": "Provide multiple configuration examples",
+      "schema": "Define comprehensive options schema",
+      "keywords": "Include relevant search keywords"
+    }
+  }
+}

@@ -1,40 +1,125 @@
 {
-  "name": "orbiton",
-  "version": "0.1.0",
+  "name": "orbiton-dashboard",
+  "version": "2.0.0",
   "type": "module",
-  "scripts": {
-    "start": "node index.js",
-    "test": "vitest"
-  },
-  "description": "A beautiful TUI dashboard for SSH sessions",
-  "bin": {
-    "orbiton": "./index.js"
-  },
-  "author": "Retasusan(https://github.com/Retasusan)",
+  "description": "A beautiful, extensible TUI dashboard with zero-config setup and AI-friendly plugin development",
+  "keywords": [
+    "tui",
+    "dashboard",
+    "terminal",
+    "widgets",
+    "plugins",
+    "monitoring",
+    "blessed",
+    "cli",
+    "zero-config",
+    "ai-friendly"
+  ],
+  "author": "Retasusan (https://github.com/Retasusan)",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Retasusan/orbiton.git"
   },
-  "keywords": [
-    "tui",
-    "dashboard",
-    "ssh",
-    "ascii",
-    "terminal",
-    "monitoring"
+  "homepage": "https://github.com/Retasusan/orbiton#readme",
+  "bugs": {
+    "url": "https://github.com/Retasusan/orbiton/issues"
+  },
+  "bin": {
+    "orbiton": "./src/index.js"
+  },
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./plugin": "./src/plugins/index.js",
+    "./types": "./types/index.d.ts",
+    "./config": "./src/config/index.js",
+    "./utils": "./src/utils/index.js"
+  },
+  "files": [
+    "src/",
+    "lib/",
+    "plugins/",
+    "templates/",
+    "types/",
+    "README.md",
+    "LICENSE.txt"
   ],
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js --dev",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src/ --ext .js",
+    "lint:fix": "eslint src/ --ext .js --fix",
+    "docs": "jsdoc -c jsdoc.config.json",
+    "build": "npm run test",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
+    "ajv": "^8.12.0",
+    "ajv-formats": "^3.0.1",
     "axios": "^1.10.0",
     "battery-level": "^3.0.0",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.11.0",
     "cfonts": "^3.3.0",
+    "chalk": "^5.3.0",
+    "chokidar": "^3.5.3",
+    "commander": "^12.0.0",
+    "inquirer": "^9.2.0",
     "is-charging": "^2.0.0",
     "node-fetch": "^3.3.2",
+    "ora": "^7.0.1",
     "ps-list": "^8.1.1"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^8.57.0",
+    "jsdoc": "^4.0.2",
+    "typescript": "^5.0.0",
     "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "ai": {
+    "framework": "blessed.js",
+    "pluginSystem": "class-based",
+    "configFormat": "json-schema",
+    "testFramework": "vitest",
+    "patterns": {
+      "plugins": "Class extending BaseWidget or DataWidget",
+      "configuration": "JSON with schema validation",
+      "theming": "CSS-like object notation",
+      "testing": "Vitest with custom plugin test harness"
+    },
+    "conventions": {
+      "errorHandling": "Use try-catch with graceful degradation",
+      "async": "Prefer async/await over promises",
+      "imports": "Use ES6 imports with .js extensions",
+      "exports": "Export default class for plugins, named exports for utilities"
+    },
+    "architecture": {
+      "core": "src/core/ - Main dashboard engine",
+      "plugins": "src/plugins/ - Plugin management system",
+      "config": "src/config/ - Configuration management",
+      "utils": "src/utils/ - Shared utilities",
+      "templates": "templates/ - Plugin scaffolding templates",
+      "types": "types/ - TypeScript definitions"
+    }
+  },
+  "orbiton": {
+    "pluginPrefix": "orbiton-plugin-",
+    "configSchema": "./lib/schemas/config.json",
+    "pluginSchema": "./lib/schemas/plugin.json",
+    "defaultPresets": [
+      "developer",
+      "server",
+      "minimal",
+      "monitoring"
+    ]
   }
 }
